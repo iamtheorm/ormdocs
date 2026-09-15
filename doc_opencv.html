@@ -14,7 +14,15 @@
 
     <nav class="site-header">
         <a href="index.html" class="logo" style="text-decoration: none; font-weight: bold; font-family: var(--font-mono); color: var(--text-primary);">&lt;DocEng /&gt;</a>
-        <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+        <div style="display: flex; align-items: center;">
+            <div class="reading-controls">
+                <button id="btn-text-minus" class="control-btn" title="Decrease Font Size">A-</button>
+                <button id="btn-text-plus" class="control-btn" title="Increase Font Size">A+</button>
+                <button id="btn-theme" class="control-btn" title="Toggle Light/Dark Theme">🌓</button>
+                <button id="btn-reader" class="control-btn" title="Toggle Reader Mode">📖</button>
+            </div>
+            <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+        </div>
     </nav>
 
     <main class="blogs-page">

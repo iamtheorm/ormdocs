@@ -1,4 +1,45 @@
+// --- User Preferences (Theme, Font Size, Reader Mode) ---
+(function() {
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    if (currentTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+    const currentFontSize = localStorage.getItem('fontSize') || '16';
+    document.documentElement.style.setProperty('--base-font-size', currentFontSize + 'px');
+
+    if (localStorage.getItem('readerMode') === 'true') {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('reader-mode-active');
+        });
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Setup Controls ---
+    const btnTheme = document.getElementById('btn-theme');
+    const btnReader = document.getElementById('btn-reader');
+    const btnTextMinus = document.getElementById('btn-text-minus');
+    const btnTextPlus = document.getElementById('btn-text-plus');
+
+    if (btnTheme) btnTheme.addEventListener('click', () => {
+        const target = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', target);
+        localStorage.setItem('theme', target);
+    });
+
+    if (btnReader) btnReader.addEventListener('click', () => {
+        localStorage.setItem('readerMode', document.body.classList.toggle('reader-mode-active'));
+    });
+
+    const updateFontSize = (delta) => {
+        let size = parseInt(localStorage.getItem('fontSize') || '16', 10) + delta;
+        if (size >= 12 && size <= 26) {
+            document.documentElement.style.setProperty('--base-font-size', size + 'px');
+            localStorage.setItem('fontSize', size);
+        }
+    };
+    if (btnTextMinus) btnTextMinus.addEventListener('click', () => updateFontSize(-2));
+    if (btnTextPlus) btnTextPlus.addEventListener('click', () => updateFontSize(2));
+
     // Clone marquee items for infinite scroll effect
     const marqueeContent = document.querySelector('.marquee-content');
     if (marqueeContent) {
