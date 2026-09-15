@@ -15,19 +15,38 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Setup Controls ---
-    const btnTheme = document.getElementById('btn-theme');
-    const btnReader = document.getElementById('btn-reader');
-    const btnTextMinus = document.getElementById('btn-text-minus');
-    const btnTextPlus = document.getElementById('btn-text-plus');
+    const btnTheme = document.getElementById('theme-toggle') || document.getElementById('btn-theme');
+    const btnReader = document.getElementById('reader-toggle') || document.getElementById('btn-reader');
+    const btnTextMinus = document.getElementById('zoom-out') || document.getElementById('btn-text-minus');
+    const btnTextPlus = document.getElementById('zoom-in') || document.getElementById('btn-text-plus');
+
+    const updateThemeText = () => {
+        if (btnTheme && btnTheme.classList.contains('text-btn')) {
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            btnTheme.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+        }
+    };
+    
+    const updateReaderText = () => {
+        if (btnReader && btnReader.classList.contains('text-btn')) {
+            const isReader = document.body.classList.contains('reader-mode-active');
+            btnReader.textContent = isReader ? 'Exit Reader' : 'Reader Mode';
+        }
+    };
+
+    updateThemeText();
+    updateReaderText();
 
     if (btnTheme) btnTheme.addEventListener('click', () => {
         const target = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', target);
         localStorage.setItem('theme', target);
+        updateThemeText();
     });
 
     if (btnReader) btnReader.addEventListener('click', () => {
         localStorage.setItem('readerMode', document.body.classList.toggle('reader-mode-active'));
+        updateReaderText();
     });
 
     const updateFontSize = (delta) => {
@@ -189,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (distance < connectionDistance) {
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(59, 130, 246, ${1 - distance / connectionDistance})`;
+                    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${(1 - distance / connectionDistance) * (isLight ? 2 : 1)})`;
                     ctx.lineWidth = 1;
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(particles[j].x, particles[j].y);
@@ -203,7 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < mouse.radius) {
                     ctx.beginPath();
-                    ctx.strokeStyle = `rgba(139, 92, 246, ${1 - distance / mouse.radius})`;
+                    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                    ctx.strokeStyle = `rgba(139, 92, 246, ${(1 - distance / mouse.radius) * (isLight ? 2 : 1)})`;
                     ctx.lineWidth = 1.5;
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(mouse.x, mouse.y);
