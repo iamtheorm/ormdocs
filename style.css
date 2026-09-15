@@ -722,3 +722,28 @@ main {
     padding: 1rem;
   }
 }
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--card-border);
+  margin-top: 2rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.footer-subtitle {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
