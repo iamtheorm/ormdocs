@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive API Developer Portal | FastAPI & PostgreSQL</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
+</head>
+<body class="dossier-theme">
+    <div class="progress-track"><span id="progress-bar"></span></div>
+
+    <nav class="site-header">
+        <a href="index.html" class="logo" style="text-decoration: none; font-weight: bold; font-family: var(--font-mono); color: var(--text-primary);">&lt;DocEng /&gt;</a>
+        <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+    </nav>
+
+    <main class="blogs-page">
+        <aside class="section-rail">
+            <div class="rail-heading"><span>Dossier Map</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active"><span>01</span><strong>Architectural Foundation</strong></a>
+                <a href="#section-2"><span>02</span><strong>Developer Experience</strong></a>
+                <a href="#section-3"><span>03</span><strong>Security & Auth</strong></a>
+                <a href="#section-4"><span>04</span><strong>Database Architecture</strong></a>
+                <a href="#section-5"><span>05</span><strong>Error Handling</strong></a>
+                <a href="#section-6"><span>06</span><strong>Endpoint Specifications</strong></a>
+                <a href="#section-7"><span>07</span><strong>Implementation</strong></a>
+            </nav>
+        </aside>
+
+        <article class="article research-note reveal">
+            <header class="article-header">
+                <div class="dossier-banner">
+                    <span>Engineering Guide / Backend APIs</span>
+                    <span>Audience / Backend Engineers</span>
+                    <span>Status / Production</span>
+                </div>
+                <h2>Interactive API Developer Portal</h2>
+                <p class="article-subtitle">Technical Specification and Architectural Reference for FastAPI, PostgreSQL, and Redis.</p>
+            </header>
+
+            <div class="article-body">
+                <section class="prose-section" id="section-1">
+                    <div class="section-marker">01</div>
+                    <div class="section-content">
+                        <p class="mini-label">01 / Ecosystem</p>
+                        <h3>Architectural Foundation and System Ecosystem</h3>
+                        <p>The design and publication of a developer-facing application programming interface (API) for backend services handling complex queries, user data management, and high-latency artificial intelligence (AI) inference requests require a robust architectural foundation. Modern API consumers expect an interactive, contract-first integration experience characterized by exact JSON schemas, diverse code samples, and deterministic error handling. This technical specification details the construction of a complete, interactive API developer portal leveraging FastAPI for asynchronous routing, PostgreSQL for persistent data and vector storage, and Redis for distributed rate limiting and state management.</p>
+                        
+                        <p>FastAPI serves as the core framework, chosen for its native asynchronous capabilities built upon the Starlette Asynchronous Server Gateway Interface (ASGI) toolkit, and its reliance on Pydantic V2 for rigorous data validation and schema generation. Because FastAPI automatically generates an OpenAPI 3.1 specification directly from Python type hints, it serves as the perfect engine for rendering modern three-pane documentation portals using tools such as Scalar or ReDoc.</p>
+                        
+                        <p>The transition from traditional frameworks to this modern stack requires careful management of the application lifecycle. Historically, FastAPI relied on <code>@app.on_event("startup")</code> and <code>@app.on_event("shutdown")</code> decorators to manage global states such as database connection pools. However, this paradigm has been deprecated due to the inherent dangers of splitting lifecycle logic and relying on global variables, which frequently led to zombie connections and missing greenlet errors in highly concurrent environments. The current architecture strictly mandates the use of the <code>lifespan</code> asynchronous context manager. By yielding control back to the application between initialization and teardown phases, the lifespan protocol ensures explicit resource ownership and guarantees deterministic cleanup of both the PostgreSQL and Redis connection pools.</p>
+
+                        <div class="mermaid">
+graph LR
+    Client["API Consumer"] -->|"HTTP Request"| Gateway["FastAPI Gateway"]
+    
+    subgraph Auth["Authentication & Protection"]
+        Gateway -->|"Verify JWT / Blocklist Check"| Redis[("Redis")]
+        Gateway -->|"Atomic Rate Limiting"| Redis
+    end
+    
+    subgraph Core["Core Services"]
+        Gateway -->|"Offload Heavy Tasks"| Celery["Celery Task Queue"]
+        Celery -->|"Vector Math / Chunking"| AI["AI Inference Engine"]
+    end
+    
+    subgraph DB["Database Architecture"]
+        Gateway -->|"Statement Cache = 0"| PgBouncer["PgBouncer Pooler"]
+        PgBouncer -->|"Transaction Mode"| Postgres[("PostgreSQL")]
+        Postgres -->|"Relational Data"| UserData[("User Tables")]
+        Postgres -->|"HNSW Vector Index"| pgvector[("pgvector")]
+        AI -->|"Semantic Queries"| pgvector
+    end
+                        </div>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-2">
+                    <div class="section-marker">02</div>
+                    <div class="section-content">
+                        <p class="mini-label">02 / OpenAPI</p>
+                        <h3>The Developer Experience: OpenAPI 3.1 and Three-Pane Rendering</h3>
+                        <p>The ultimate deliverable of this system is the interactive developer portal. A premium developer experience demands a highly readable specification, which is best achieved through a three-pane layout rather than traditional top-down renderers.</p>
+
+                        <h4>Scalar and ReDoc Implementations</h4>
+                        <p>The API portal utilizes Scalar or ReDoc as the documentation renderer in place of the default Swagger UI. Both tools natively support a clean three-column design: the left column provides endpoint navigation and tag grouping, the center column explains the endpoint parameters and validation constraints, and the right column features interactive code samples and response payloads. Scalar additionally provides a built-in API testing client directly within the interface, full dark mode support, and native integration for the OpenAPI 3.1 specification, making it the premier choice for modern developer portals.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Renderer</th>
+                                    <th>Layout Style</th>
+                                    <th>OpenAPI 3.1 Support</th>
+                                    <th>Interactive API Client</th>
+                                    <th>Primary Use Case</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Scalar</strong></td>
+                                    <td>Three-pane</td>
+                                    <td>Full Support</td>
+                                    <td>Built-in</td>
+                                    <td>Modern portals requiring live testing and deep aesthetic customization.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ReDoc</strong></td>
+                                    <td>Three-pane</td>
+                                    <td>Full Support</td>
+                                    <td>Paid Add-on</td>
+                                    <td>Clean, static reference documentation for large enterprise schemas.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Swagger UI</strong></td>
+                                    <td>Single-column</td>
+                                    <td>Full Support</td>
+                                    <td>Built-in</td>
+                                    <td>Legacy compatibility and traditional "Try it out" block execution.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Injecting Payloads via Pydantic V2</h4>
+                        <p>To populate the documentation with realistic sample requests, the architecture leverages Pydantic V2. Rewritten with a Rust-based validation core (pydantic-core), Pydantic V2 provides a 5x to 50x performance improvement over its predecessor, functionally eliminating the serialization bottlenecks prevalent in large AI inference payloads.</p>
+                        <p>To enrich the OpenAPI specification, Pydantic V2 models utilize the <code>json_schema_extra</code> configuration under the <code>model_config</code> dictionary. This configuration injects custom examples directly into the generated OpenAPI schema, which the rendering engine subsequently displays in the right-hand payload pane. This ensures that client developers are not presented with abstract data types, but rather concrete, domain-specific examples of the required input. Furthermore, utilizing <code>model_validate_json()</code> natively parses JSON payloads without the overhead of intermediary Python dictionary conversions, maximizing throughput for incoming requests.</p>
+
+                        <h4>The x-codeSamples Extension</h4>
+                        <p>To fully leverage the right-hand pane of the three-pane layout, the OpenAPI specification utilizes vendor extensions, specifically <code>x-codeSamples</code>. This extension allows the documentation to display pre-configured code snippets for executing the API call in various languages (e.g., cURL, Python via HTTPX, Node.js). Because FastAPI does not natively inject <code>x-codeSamples</code> through standard routing decorators, the application's <code>.openapi()</code> method is systematically overridden. A custom schema generation function retrieves the base OpenAPI definition, iterates through the operational paths, and injects the <code>x-codeSamples</code> array into specific route configurations before passing the modified dictionary to the rendering engine.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-3">
+                    <div class="section-marker">03</div>
+                    <div class="section-content">
+                        <p class="mini-label">03 / Security</p>
+                        <h3>Security, Authentication, and High-Performance Rate Limiting</h3>
+                        <p>Securing a developer-facing API requires a robust, stateless authentication mechanism coupled with aggressive protections against abuse. For this platform, JSON Web Tokens (JWT) are employed as Bearer tokens, transmitted via the standard Authorization header.</p>
+
+                        <h4>JWT Cryptography and Redis Revocation</h4>
+                        <p>The architecture mandates the use of the RS256 (RSA Signature with SHA-256) asymmetric algorithm over the simpler HS256 symmetric alternative. RS256 utilizes a private key to sign the token and a public key to verify it. This topological separation ensures that downstream microservices, such as the AI inference engine, can cryptographically verify the token's authenticity without ever possessing the secret required to forge one.</p>
+                        <p>While JWTs provide excellent stateless verification, their inherent architectural limitation is the inability to revoke them immediately upon a user logging out or a security breach occurring. To mitigate this, the architecture implements a highly performant token blocklist utilizing Redis. When a token must be revoked, its unique identifier (the <code>jti</code> claim) is extracted and stored in the Redis cache with a Time-To-Live (TTL) matching the token's remaining absolute expiration time. Custom FastAPI dependency injection intercepts all incoming requests, decodes the JWT, and queries Redis for the <code>jti</code> in a non-blocking asynchronous operation. If the token identifier is present in the blocklist, the gateway instantly raises a 401 Unauthorized exception.</p>
+
+                        <h4>Atomic Token Bucket Rate Limiting</h4>
+                        <p>To protect the computationally expensive AI inference services from denial-of-service vectors, the API implements a token bucket rate-limiting algorithm evaluated entirely within Redis. Standard implementation of rate limits often suffers from race conditions in high-concurrency environments; if multiple requests arrive simultaneously, a non-atomic read-modify-write cycle may allow excessive traffic to bypass the limit.</p>
+                        <p>To solve this, the architecture utilizes Redis Lua scripting. The Lua script ensures that fetching the current token count, calculating the replenishment based on the time elapsed since the last request, and deducting the newly consumed token all execute within a single atomic database transaction. If the bucket is exhausted, the script rejects the operation.</p>
+                        <p>The API middleware subsequently intercepts this rejection and responds with standard rate-limiting HTTP headers to dynamically inform developers of their quota limits.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>HTTP Header</th>
+                                    <th>Description</th>
+                                    <th>Specification Context</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>X-RateLimit-Limit</code></td>
+                                    <td>The absolute maximum number of requests permitted within the predefined time window.</td>
+                                    <td>Enables clients to configure their baseline polling frequency.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>X-RateLimit-Remaining</code></td>
+                                    <td>The current number of requests remaining in the active window.</td>
+                                    <td>Allows clients to aggressively throttle requests before hitting the ceiling.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>Retry-After</code></td>
+                                    <td>The number of seconds the client must wait before the bucket is replenished.</td>
+                                    <td>Returned explicitly alongside a 429 Too Many Requests status code to dictate client back-off.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-4">
+                    <div class="section-marker">04</div>
+                    <div class="section-content">
+                        <p class="mini-label">04 / Database</p>
+                        <h3>High-Concurrency Database Architecture</h3>
+                        <p>The backend utilizes PostgreSQL not only as a traditional relational store for user data but also as a high-dimensional vector database via the <code>pgvector</code> extension, enabling semantic search capabilities.</p>
+
+                        <h4>Connection Pooling with asyncpg and PgBouncer</h4>
+                        <p>Because standard PostgreSQL connections are resource-intensive—forking a full backend process with its own memory overhead for each connection—high-concurrency FastAPI applications must utilize an external connection pooler like PgBouncer. The system interfaces with the database via asyncpg, a highly optimized database driver running beneath SQLAlchemy 2.0's asynchronous engine.</p>
+                        <p>However, integrating asyncpg with PgBouncer operating in transaction mode introduces a severe architectural trap regarding prepared statements. By default, asyncpg aggressively caches the last 100 unique queries per connection as server-side prepared statements (utilizing hashes such as <code>__asyncpg_stmt_a1b2c3__</code>) to bypass query parsing overhead. In PgBouncer's transaction mode, successive queries from the same FastAPI worker may be routed to entirely different PostgreSQL backend processes. Because prepared statements are strictly scoped to the specific backend process where they were created, this mismatch reliably generates <code>DuplicatePreparedStatementError</code> or "prepared statement does not exist" failures under load.</p>
+                        <p>To rectify this without abandoning transaction-mode pooling, the SQLAlchemy async engine is explicitly configured with <code>statement_cache_size=0</code> passed into <code>connect_args</code>. This configuration instructs asyncpg to bypass server-side caching entirely, ensuring that every query is sent as an unnamed prepared statement, restoring absolute stability behind PgBouncer at the cost of a marginal parsing overhead.</p>
+                        <p>Furthermore, to prevent runaway analytical queries from consuming the entire connection pool, strict connection-level timeouts are enforced upon session acquisition, executing <code>SET statement_timeout = 5000</code> to aggressively terminate any operation exceeding a five-second threshold.</p>
+
+                        <h4>Vector Storage and AI Inference (pgvector)</h4>
+                        <p>For Retrieval-Augmented Generation (RAG) and complex AI queries, high-dimensional vector embeddings must be retrieved at extreme velocities. The <code>pgvector</code> extension provides two primary algorithmic index types: Inverted File Flat (IVFFlat) and Hierarchical Navigable Small World (HNSW).</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Index Type</th>
+                                    <th>Algorithmic Mechanism</th>
+                                    <th>Memory Footprint</th>
+                                    <th>Build Speed</th>
+                                    <th>Query Latency / Recall</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>IVFFlat</strong></td>
+                                    <td>Divides vector space into Voronoi cells. Queries probe the nearest centroids.</td>
+                                    <td>Low</td>
+                                    <td>Very Fast</td>
+                                    <td>Moderate latency with lower recall; requires manual tuning of lists and probes and periodic re-indexing.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HNSW</strong></td>
+                                    <td>Multi-layered proximity graph where greedy searches traverse downward through layers.</td>
+                                    <td>High</td>
+                                    <td>Slower</td>
+                                    <td>Ultra-low latency (sub-40ms) with extremely high recall; heavily resilient to dataset evolution without re-indexing.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p>The architecture strictly specifies the deployment of HNSW indexes for all production AI embedding columns. While HNSW consumes more operational memory and delays initial write operations, it guarantees superior speed-to-recall ratios and prevents latency degradation as the dataset scales into the millions of rows.</p>
+                        <p>When executing inference requests against this data, it is imperative that the FastAPI event loop is never blocked by CPU-bound mathematical computations or prolonged network waits to external Large Language Model (LLM) providers. While FastAPI provides a native <code>BackgroundTasks</code> utility suitable for trivial, fire-and-forget operations, it executes within the same memory space and event loop. Therefore, for rigorous AI inference workflows, the architecture offloads all heavy processing to distributed Celery workers communicating over a Redis message broker. This strict decoupling ensures the API gateway remains highly responsive, accepting inbound traffic while backend GPU nodes asynchronously process the vector mathematical operations.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-5">
+                    <div class="section-marker">05</div>
+                    <div class="section-content">
+                        <p class="mini-label">05 / Errors</p>
+                        <h3>Standardized Error Handling (RFC 7807)</h3>
+                        <p>A deterministic API developer portal must present error responses that are mathematically predictable. Returning ad-hoc string messages prevents client applications from programmatically resolving failures. To achieve total consistency, the API implements RFC 7807 (Problem Details for HTTP APIs).</p>
+                        <p>RFC 7807 defines a canonical JSON schema (<code>application/problem+json</code>) designed to inform clients of both the high-level error class and the fine-grained details of the failure. The schema requires the following standard members:</p>
+                        <ul>
+                            <li><code>type</code>: A URI reference identifying the problem type, serving as the primary identifier for automated offline log analysis.</li>
+                            <li><code>title</code>: A short, human-readable summary of the problem type that does not change from occurrence to occurrence.</li>
+                            <li><code>status</code>: The HTTP status code generated by the origin server.</li>
+                            <li><code>detail</code>: A human-readable explanation focusing on helping the client correct the problem specific to this occurrence.</li>
+                            <li><code>instance</code>: A unique URI identifying the specific occurrence, utilized heavily for forensic purposes and correlating with backend telemetry traces.</li>
+                        </ul>
+                        <p>FastAPI inherently throws a <code>RequestValidationError</code> upon encountering malformed payloads, returning a proprietary JSON array that breaks standard compliance. To enforce RFC 7807, the architecture utilizes the <code>@app.exception_handler</code> decorator to override FastAPI's default exception handlers globally. This custom middleware intercepts <code>RequestValidationError</code>, <code>StarletteHTTPException</code>, and all unhandled internal <code>ValueError</code> exceptions, mutating their output to perfectly align with the <code>application/problem+json</code> specification prior to transmission.</p>
+
+                        <h4>HTTP Status Codes and Application Error Taxonomy</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>HTTP Status</th>
+                                    <th>RFC 7807 title</th>
+                                    <th>Architectural Context / Custom Trigger Conditions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>200 OK</td>
+                                    <td>N/A</td>
+                                    <td>Standard success for all GET, PUT, and PATCH operations. Response payload guarantees adherence to the advertised Pydantic schema.</td>
+                                </tr>
+                                <tr>
+                                    <td>201 Created</td>
+                                    <td>N/A</td>
+                                    <td>Indicates successful resource creation, such as the initial ingestion of an unstructured document into the vectorization pipeline.</td>
+                                </tr>
+                                <tr>
+                                    <td>204 No Content</td>
+                                    <td>N/A</td>
+                                    <td>Successful execution of a DELETE operation, confirming the removal of vectors and relational records without returning a payload.</td>
+                                </tr>
+                                <tr>
+                                    <td>400 Bad Request</td>
+                                    <td>Malformed Request</td>
+                                    <td>The request violates fundamental syntactic rules before reaching semantic validation, such as sending XML to a JSON-only endpoint.</td>
+                                </tr>
+                                <tr>
+                                    <td>401 Unauthorized</td>
+                                    <td>Authentication Failure</td>
+                                    <td>Triggered when the JWT Bearer token is absent, cryptographically invalid, expired, or explicitly matched against the Redis revocation blocklist.</td>
+                                </tr>
+                                <tr>
+                                    <td>403 Forbidden</td>
+                                    <td>Insufficient Permissions</td>
+                                    <td>The token is valid, but the user lacks the Role-Based Access Control (RBAC) claims required to mutate or access the specific relational resource.</td>
+                                </tr>
+                                <tr>
+                                    <td>404 Not Found</td>
+                                    <td>Resource Missing</td>
+                                    <td>The queried entity identifier (e.g., an inference job UUID) cannot be located within the PostgreSQL operational tables.</td>
+                                </tr>
+                                <tr>
+                                    <td>409 Conflict</td>
+                                    <td>State Conflict</td>
+                                    <td>A write operation violates a database constraint, such as attempting to register a user with an email address that already holds a unique index.</td>
+                                </tr>
+                                <tr>
+                                    <td>422 Unprocessable Entity</td>
+                                    <td>Validation Error</td>
+                                    <td>The JSON is syntactically valid but fails Pydantic V2 semantic evaluation (e.g., missing mandatory fields, integers exceeding defined bounds).</td>
+                                </tr>
+                                <tr>
+                                    <td>429 Too Many Requests</td>
+                                    <td>Rate Limit Exceeded</td>
+                                    <td>The client has exhausted their Redis token bucket capacity. The response instructs the client to respect the Retry-After header.</td>
+                                </tr>
+                                <tr>
+                                    <td>500 Internal Server Error</td>
+                                    <td>System Failure</td>
+                                    <td>An unhandled backend exception, such as a Celery worker crashing during chunking, or a complete failure to negotiate a database connection pool.</td>
+                                </tr>
+                                <tr>
+                                    <td>503 Service Unavailable</td>
+                                    <td>Upstream Timeout</td>
+                                    <td>The distributed inference engine or external LLM API timed out, preventing the generation of the semantic response payload.</td>
+                                </tr>
+                                <tr>
+                                    <td>504 Gateway Timeout</td>
+                                    <td>Execution Timeout</td>
+                                    <td>The PostgreSQL query execution exceeded the explicit statement_timeout safeguard, terminating the transaction to preserve pool stability.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-6">
+                    <div class="section-marker">06</div>
+                    <div class="section-content">
+                        <p class="mini-label">06 / Endpoints</p>
+                        <h3>Exhaustive Endpoint Specifications</h3>
+                        <p>The following section constitutes the developer-facing API reference, documenting the exact CRUD operations necessary to interact with the backend services. All endpoints stipulate the presence of the <code>Authorization: Bearer &lt;token&gt;</code> header unless explicitly marked otherwise.</p>
+
+                        <h4>1. User and Authentication Management (/api/v1/auth)</h4>
+                        <p>The authentication endpoints manage the issuance and revocation of the RS256 JWT tokens.</p>
+                        
+                        <p><strong>POST <code>/api/v1/auth/token</code></strong><br>
+                        <strong>Summary:</strong> Exchanges client credentials for an access and refresh token pair.<br>
+                        <strong>Headers:</strong> <code>Content-Type: application/x-www-form-urlencoded</code><br>
+                        <strong>Rate Limit:</strong> 5 requests per minute per IP address.</p>
+                        
+                        <p><strong>Request Payload (Form Data):</strong><br>
+                        <code>username</code> (string, required): The registered email address.<br>
+                        <code>password</code> (string, required): The plaintext password, validated against the bcrypt hash in PostgreSQL.</p>
+                        
+                        <p><strong>Success Response Schema (200 OK):</strong></p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>access_token</td><td>string</td><td>The short-lived JWT used for API authorization.</td></tr>
+                                <tr><td>refresh_token</td><td>string</td><td>The long-lived JWT used to acquire new access tokens.</td></tr>
+                                <tr><td>token_type</td><td>string</td><td>Always returns "bearer".</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>DELETE <code>/api/v1/auth/revoke</code></strong><br>
+                        <strong>Summary:</strong> Revokes the active access token, rendering it unusable for future requests.<br>
+                        <strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code><br>
+                        <strong>Success Response Schema (204 No Content):</strong> Empty payload. The jti claim is successfully appended to the Redis blocklist.</p>
+
+                        <h4>2. Document Ingestion and Vectorization (/api/v1/documents)</h4>
+                        <p>These endpoints govern the lifecycle of unstructured text, preparing it for spatial querying via pgvector.</p>
+
+                        <p><strong>POST <code>/api/v1/documents</code></strong><br>
+                        <strong>Summary:</strong> Submits a raw text document to the Celery task queue for chunking and embedding generation.<br>
+                        <strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code>, <code>Content-Type: application/json</code></p>
+                        
+                        <p><strong>Request Payload Schema:</strong></p>
+                        <table>
+                            <thead><tr><th>Field</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>title</td><td>string</td><td>Max 128 chars</td><td>The human-readable title of the document.</td></tr>
+                                <tr><td>content</td><td>string</td><td>Min 50 chars</td><td>The raw text payload to be vectorized.</td></tr>
+                                <tr><td>tags</td><td>array[string]</td><td>Optional</td><td>Metadata tags for pre-filtering queries prior to HNSW traversal.</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>Success Response Schema (202 Accepted):</strong></p>
+                        <table>
+                            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>document_id</td><td>string (UUID)</td><td>The primary key allocated in PostgreSQL.</td></tr>
+                                <tr><td>status</td><td>string</td><td>Returns "queued_for_processing".</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>GET <code>/api/v1/documents/{document_id}</code></strong><br>
+                        <strong>Summary:</strong> Retrieves the metadata and processing status of a specific document.<br>
+                        <strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code><br>
+                        <strong>Path Parameters:</strong> <code>document_id</code> (UUID, required).</p>
+
+                        <p><strong>Success Response Schema (200 OK):</strong></p>
+                        <table>
+                            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>id</td><td>string (UUID)</td><td>The document identifier.</td></tr>
+                                <tr><td>title</td><td>string</td><td>The stored title.</td></tr>
+                                <tr><td>status</td><td>string</td><td>Processing status (e.g., "completed", "failed", "processing").</td></tr>
+                                <tr><td>vector_count</td><td>integer</td><td>The number of distinct embedding chunks generated.</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>3. AI Inference and Semantic Search (/api/v1/inference)</h4>
+                        <p>This endpoint executes complex Retrieval-Augmented Generation workflows against the multi-layered graph index.</p>
+
+                        <p><strong>POST <code>/api/v1/inference/query</code></strong><br>
+                        <strong>Summary:</strong> Executes a high-latency RAG query against the PostgreSQL HNSW index.<br>
+                        <strong>Headers:</strong> <code>Authorization: Bearer &lt;token&gt;</code>, <code>Content-Type: application/json</code><br>
+                        <strong>Rate Limit:</strong> 30 requests per minute per user.</p>
+
+                        <p><strong>Request Payload Schema:</strong></p>
+                        <table>
+                            <thead><tr><th>Field</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>query</td><td>string</td><td>Min 10 chars</td><td>The natural language question to be resolved.</td></tr>
+                                <tr><td>confidence_threshold</td><td>float</td><td>0.0 to 1.0</td><td>The minimum cosine similarity required for a vector chunk to be utilized.</td></tr>
+                                <tr><td>max_results</td><td>integer</td><td>Default 3, Max 10</td><td>The number of context chunks to retrieve.</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>Success Response Schema (200 OK):</strong></p>
+                        <table>
+                            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>inference_id</td><td>string (UUID)</td><td>A unique identifier for the execution trace.</td></tr>
+                                <tr><td>answer</td><td>string</td><td>The synthesized response generated by the LLM.</td></tr>
+                                <tr><td>sources</td><td>array[object]</td><td>An array mapping document_id to their respective semantic score.</td></tr>
+                                <tr><td>processing_time_ms</td><td>integer</td><td>Total latency incurred by the inference pipeline.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-7">
+                    <div class="section-marker">07</div>
+                    <div class="section-content">
+                        <p class="mini-label">07 / Implementation</p>
+                        <h3>The Deliverable: OpenAPI 3.1 Configuration Generation</h3>
+                        <p>To instantiate this comprehensive developer portal, the following Python configuration demonstrates the exact FastAPI implementation required. This code bridges all theoretical concepts discussed—including the lifespan context manager, Pydantic V2 payload generation, RFC 7807 error handling middleware, and the injection of the <code>x-codeSamples</code> vendor extension to force the three-pane layout rendering in Scalar or ReDoc.</p>
+
+                        <pre><code><span class="token-keyword">import</span> time
+<span class="token-keyword">from</span> typing <span class="token-keyword">import</span> List, Optional, Any
+<span class="token-keyword">from</span> contextlib <span class="token-keyword">import</span> asynccontextmanager
+<span class="token-keyword">from</span> fastapi <span class="token-keyword">import</span> FastAPI, Request, HTTPException, status
+<span class="token-keyword">from</span> fastapi.responses <span class="token-keyword">import</span> JSONResponse
+<span class="token-keyword">from</span> fastapi.openapi.utils <span class="token-keyword">import</span> get_openapi
+<span class="token-keyword">from</span> fastapi.exceptions <span class="token-keyword">import</span> RequestValidationError
+<span class="token-keyword">from</span> pydantic <span class="token-keyword">import</span> BaseModel, Field, ConfigDict
+<span class="token-keyword">from</span> pydantic_core <span class="token-keyword">import</span> ValidationError
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># Application Lifespan Management (PostgreSQL & Redis Pools)</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+@asynccontextmanager
+<span class="token-keyword">async def</span> <span class="token-function">app_lifespan</span>(app: FastAPI):
+    <span class="token-comment"># Initialize asyncpg pool with statement_cache_size=0 for PgBouncer compatibility</span>
+    <span class="token-comment"># app.state.db_pool = await asyncpg.create_pool(dsn, statement_cache_size=0)</span>
+    <span class="token-comment"># Initialize Redis connection for JWT revocation blocklist and rate limiting</span>
+    <span class="token-comment"># app.state.redis = await redis.from_url(redis_url)</span>
+    
+    <span class="token-keyword">yield</span> <span class="token-comment"># Application handles requests during this phase</span>
+    
+    <span class="token-comment"># Graceful teardown of connections to prevent zombie state</span>
+    <span class="token-comment"># await app.state.db_pool.close()</span>
+    <span class="token-comment"># await app.state.redis.close()</span>
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># FastAPI Initialization</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+app = FastAPI(
+    title=<span class="token-string">"AI Inference API Developer Portal"</span>,
+    version=<span class="token-string">"1.2.0"</span>,
+    description=<span class="token-string">"Interactive three-pane API documentation for RAG inference and vector management."</span>,
+    lifespan=app_lifespan,
+    docs_url=<span class="token-keyword">None</span>,  <span class="token-comment"># Disabling default Swagger UI to utilize Scalar/ReDoc externally</span>
+    redoc_url=<span class="token-keyword">None</span>
+)
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># RFC 7807 Problem Details Global Exception Handlers</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+@app.exception_handler(RequestValidationError)
+<span class="token-keyword">async def</span> <span class="token-function">validation_exception_handler</span>(request: Request, exc: RequestValidationError):
+    <span class="token-string">"""
+    Overrides the default Pydantic V2 validation error array to comply with RFC 7807.
+    """</span>
+    problem_response = {
+        <span class="token-string">"type"</span>: <span class="token-string">"https://api.example.com/errors/validation-error"</span>,
+        <span class="token-string">"title"</span>: <span class="token-string">"Validation Error"</span>,
+        <span class="token-string">"status"</span>: status.HTTP_422_UNPROCESSABLE_ENTITY,
+        <span class="token-string">"detail"</span>: <span class="token-string">"The request payload failed semantic validation constraints."</span>,
+        <span class="token-string">"instance"</span>: <span class="token-function">str</span>(request.url),
+        <span class="token-string">"errors"</span>: exc.errors()  <span class="token-comment"># Attach specific field violations</span>
+    }
+    <span class="token-keyword">return</span> JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=problem_response)
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># Pydantic V2 Schemas with OpenAPI Examples</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-keyword">class</span> <span class="token-type">SourceDocument</span>(BaseModel):
+    document_id: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"UUID of the supporting document."</span>)
+    score: <span class="token-type">float</span> = Field(..., description=<span class="token-string">"Cosine similarity score."</span>)
+
+<span class="token-keyword">class</span> <span class="token-type">InferenceRequest</span>(BaseModel):
+    query: <span class="token-type">str</span> = Field(..., min_length=<span class="token-keyword">10</span>, description=<span class="token-string">"The natural language question to be resolved."</span>)
+    confidence_threshold: Optional[<span class="token-type">float</span>] = Field(default=<span class="token-keyword">0.85</span>, ge=<span class="token-keyword">0.0</span>, le=<span class="token-keyword">1.0</span>)
+    max_results: Optional[<span class="token-type">int</span>] = Field(default=<span class="token-keyword">3</span>, le=<span class="token-keyword">10</span>)
+    
+    <span class="token-comment"># Injecting OpenAPI payload examples using Pydantic V2 model_config</span>
+    model_config = ConfigDict(
+        json_schema_extra={
+            <span class="token-string">"examples"</span>: [
+                {
+                    <span class="token-string">"query"</span>: <span class="token-string">"What were the primary enterprise software revenue drivers in Q3?"</span>,
+                    <span class="token-string">"confidence_threshold"</span>: <span class="token-keyword">0.88</span>,
+                    <span class="token-string">"max_results"</span>: <span class="token-keyword">3</span>
+                }
+            ]
+        }
+    )
+
+<span class="token-keyword">class</span> <span class="token-type">InferenceResponse</span>(BaseModel):
+    inference_id: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"Unique execution trace ID."</span>)
+    answer: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"The synthesized response generated by the LLM."</span>)
+    sources: List[SourceDocument] = Field(default_factory=<span class="token-keyword">list</span>)
+    processing_time_ms: <span class="token-type">int</span> = Field(..., description=<span class="token-string">"Pipeline latency in milliseconds."</span>)
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># API Endpoints</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+@app.post(<span class="token-string">"/api/v1/inference/query"</span>, response_model=InferenceResponse, tags=[<span class="token-string">"Inference"</span>])
+<span class="token-keyword">async def</span> <span class="token-function">execute_query</span>(request: InferenceRequest):
+    <span class="token-string">"""
+    Executes a high-latency RAG query against the PostgreSQL HNSW index.
+    """</span>
+    <span class="token-comment"># In production, this would offload to a Celery worker to avoid blocking the event loop.</span>
+    <span class="token-keyword">return</span> InferenceResponse(
+        inference_id=<span class="token-string">"inf_993a4b"</span>,
+        answer=<span class="token-string">"The primary drivers were cloud infrastructure and enterprise subscriptions."</span>,
+        sources=[SourceDocument(document_id=<span class="token-string">"doc_8f73b1a2"</span>, score=<span class="token-keyword">0.92</span>)],
+        processing_time_ms=<span class="token-keyword">340</span>
+    )
+
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-comment"># OpenAPI Schema Generator & x-codeSamples Injection</span>
+<span class="token-comment"># ---------------------------------------------------------</span>
+<span class="token-keyword">def</span> <span class="token-function">custom_openapi</span>():
+    <span class="token-keyword">if</span> app.openapi_schema:
+        <span class="token-keyword">return</span> app.openapi_schema
+        
+    openapi_schema = <span class="token-function">get_openapi</span>(
+        title=<span class="token-string">"AI Inference API"</span>,
+        version=<span class="token-string">"1.2.0"</span>,
+        description=<span class="token-string">"Contract-first API Portal demonstrating three-pane layout configuration."</span>,
+        routes=app.routes,
+    )
+    
+    <span class="token-comment"># Inject x-codeSamples vendor extension to populate the right-hand pane in Scalar/ReDoc</span>
+    <span class="token-keyword">if</span> <span class="token-string">"/api/v1/inference/query"</span> <span class="token-keyword">in</span> openapi_schema[<span class="token-string">"paths"</span>]:
+        openapi_schema[<span class="token-string">"paths"</span>][<span class="token-string">"/api/v1/inference/query"</span>][<span class="token-string">"post"</span>][<span class="token-string">"x-codeSamples"</span>] = [
+            {
+                <span class="token-string">"lang"</span>: <span class="token-string">"cURL"</span>,
+                <span class="token-string">"label"</span>: <span class="token-string">"cURL CLI"</span>,
+                <span class="token-string">"source"</span>: <span class="token-string">"curl -X POST https://api.example.com/api/v1/inference/query \\\n"</span>
+                          <span class="token-string">"  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \\\n"</span>
+                          <span class="token-string">"  -H 'Content-Type: application/json' \\\n"</span>
+                          <span class="token-string">"  -d '{\"query\": \"What were the primary revenue drivers?\", \"max_results\": 3}'"</span>
+            },
+            {
+                <span class="token-string">"lang"</span>: <span class="token-string">"Python"</span>,
+                <span class="token-string">"label"</span>: <span class="token-string">"Python (HTTPX)"</span>,
+                <span class="token-string">"source"</span>: <span class="token-string">"import httpx\n\n"</span>
+                          <span class="token-string">"headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}\n"</span>
+                          <span class="token-string">"payload = {'query': 'What were the primary revenue drivers?', 'max_results': 3}\n"</span>
+                          <span class="token-string">"response = httpx.post('https://api.example.com/api/v1/inference/query', json=payload, headers=headers)\n"</span>
+                          <span class="token-string">"print(response.json())"</span>
+            }
+        ]
+        
+    app.openapi_schema = openapi_schema
+    <span class="token-keyword">return</span> app.openapi_schema
+
+<span class="token-comment"># Override the default schema generation method</span>
+app.openapi = custom_openapi</code></pre>
+                        
+                        <p>When this application is executed, the generated <code>/openapi.json</code> file serves as the definitive, machine-readable contract. Feeding this JSON directly into a Scalar or ReDoc frontend will automatically construct the highly interactive three-pane layout, ensuring that developers are armed with the precise schemas, error handling expectations, and operational context necessary to integrate successfully.</p>
+                    </div>
+                </section>
+            </div>
+        </article>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Multi-Agent Systems & API Gateways</title>
+    <meta name="description" content="Technical monograph on building autonomous multi-agent revenue recovery pipelines and interactive API gateways using n8n, FastAPI, PostgreSQL, and LangChain.">
+    <meta name="keywords" content="n8n, FastAPI, Multi-Agent, Revenue Recovery, LangChain, PostgreSQL, Webhook, API Gateway">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
+</head>
+<body class="dossier-theme">
+    <div class="progress-track"><span id="progress-bar"></span></div>
+
+    <nav class="site-header">
+        <a href="index.html" class="logo" style="text-decoration: none; font-weight: bold; font-family: var(--font-mono); color: var(--text-primary);">&lt;DocEng /&gt;</a>
+        <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+    </nav>
+
+    <main class="blogs-page">
+        <aside class="section-rail">
+            <div class="rail-heading"><span>Dossier Map</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active"><span>01</span><strong>Introduction</strong></a>
+                <a href="#section-2"><span>02</span><strong>System Architecture</strong></a>
+                <a href="#section-3"><span>03</span><strong>Idempotency & State</strong></a>
+                <a href="#section-4"><span>04</span><strong>Intent Classification</strong></a>
+                <a href="#section-5"><span>05</span><strong>Autonomous Remediation</strong></a>
+                <a href="#section-6"><span>06</span><strong>Interactive API Portal</strong></a>
+                <a href="#section-7"><span>07</span><strong>Error Handling</strong></a>
+                <a href="#section-8"><span>08</span><strong>OpenAPI Config</strong></a>
+                <a href="#section-9"><span>09</span><strong>Conclusion</strong></a>
+            </nav>
+        </aside>
+
+        <article class="article research-note reveal">
+            <header class="article-header">
+                <div class="dossier-banner">
+                    <span>Architecture / Workflow Engines</span>
+                    <span>Stack / n8n, FastAPI, LangChain</span>
+                    <span>Pattern / Event-Driven Multi-Agent</span>
+                </div>
+                <h2>Autonomous Multi-Agent Systems & Interactive API Gateways</h2>
+                <p class="article-subtitle">A Comprehensive Technical Monograph for Revenue Recovery & Incident Triage</p>
+            </header>
+
+            <div class="article-body">
+                <section class="prose-section" id="section-0">
+                    <div class="section-content">
+                        <p>Modern high-throughput enterprise systems depend heavily on asynchronous webhook architectures for real-time state synchronization, distributed transaction processing, and infrastructure monitoring. However, traditional linear workflow automation platforms (such as Zapier and Make) break down when exposed to high-concurrency event streams, deeply nested JSON structures, stochastic failures, and the necessity for zero-loss idempotency.</p>
+                        <p>Simultaneously, exposing robust backend services requires machine-readable, secure, and developer-friendly documentation portals. This paper consolidates enterprise architectural specifications for an Autonomous Multi-Agent Revenue Recovery & IT Incident Triage Engine integrated with an Interactive API Developer Portal built upon FastAPI and PostgreSQL. We examine cryptographic webhook ingestion via HMAC SHA-256, distributed idempotency ledger patterns, dynamic agentic intent classification using few-shot LLM reasoning pipelines, self-healing remediation logic with Retrieval-Augmented Generation (RAG), and standard OpenAPI three-pane interface layouts designed to eliminate silent revenue leakage, minimize Mean Time to Resolution (MTTR), and maximize developer integration efficiency.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-1">
+                    <div class="section-marker">01</div>
+                    <div class="section-content">
+                        <p class="mini-label">01 / Problem Statement</p>
+                        <h3>1. Introduction & System Problem Statement</h3>
+                        <p>Enterprise event-driven ecosystems process millions of disparate webhooks daily. These range from payment gateway failures (e.g., Stripe subscription cancellations, dropped webhook events, expired credit card tokens) to critical cloud infrastructure alerts (e.g., Datadog threshold breaches, Kubernetes pod crash loops).</p>
+                        <p>Traditional workflow tools and unvalidated APIs exhibit severe limitations in production environments:</p>
+                        <ul>
+                            <li><strong>Brittle Schema Parsers:</strong> Linear automations fail outright when encountering shifting schema versions or deeply nested JSON payloads, dropping critical transaction context.</li>
+                            <li><strong>Lack of Contextual Triage:</strong> Basic conditional switches rely on exact string matches, failing to interpret semantic error messages or categorize incident severity accurately.</li>
+                            <li><strong>Primitive Error Recovery and State Management:</strong> Inability to handle transient network partitions without duplicating transaction side effects, causing race conditions, or failing to propagate standardized error envelopes.</li>
+                        </ul>
+                        <p>To address these architectural gaps, we propose a fault-tolerant, event-driven, multi-agent framework combined with a high-performance RESTful API gateway and three-pane developer portal interface.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-2">
+                    <div class="section-marker">02</div>
+                    <div class="section-content">
+                        <p class="mini-label">02 / Architecture</p>
+                        <h3>2. End-to-End System Architecture & Ingestion Layer</h3>
+                        <p>The unified architecture bridges external webhooks into self-hosted n8n execution nodes while concurrently exposing developer endpoints via FastAPI.</p>
+
+                        <div class="mermaid">
+graph LR
+    Webhook["External Webhook / Client"] --> Gateway["FastAPI / API Gateway<br>(SSL & Rate Limiting)"]
+    Gateway --> n8n["n8n Webhook Trigger Node"]
+    Gateway --> Router["FastAPI Router Endpoints"]
+    
+    n8n --> HMAC["HMAC Cryptographic Validation"]
+    HMAC --> Ledger["Distributed Idempotency Ledger"]
+    Ledger --> AI["AI Agent Router (LangChain Core)"]
+    
+    Router --> Pydantic["Pydantic v2 Schema Validation"]
+    Pydantic --> DB["PostgreSQL / SQLAlchemy ORM"]
+                        </div>
+
+                        <h4>Cryptographic Validation, HMAC, and Schema Normalization</h4>
+                        <p>To prevent spoofing attacks, replay vectors, and unauthorized payload injection, every ingress webhook must undergo strict cryptographic signature verification. An embedded Code Node executes native cryptographic routines to validate headers against shared secrets before any downstream processing occurs.</p>
+                        
+                        <pre><code class="language-javascript">const crypto = require('crypto');
+
+function validateAndSanitizeWebhook(inputItem) {
+    const signature = inputItem.headers['stripe-signature'] || inputItem.headers['x-signature'] || '';
+    const rawBody = typeof inputItem.json === 'string' ? inputItem.json : JSON.stringify(inputItem.json);
+    const secret = process.env.WEBHOOK_SECRET;
+
+    if (!signature) {
+        throw new Error('Missing cryptographic signature header.');
+    }
+
+    // Compute HMAC SHA-256 hash for verification
+    const computedHmac = crypto
+        .createHmac('sha256', secret)
+        .update(rawBody)
+        .digest('hex');
+
+    // Constant-time comparison to prevent timing attacks
+    const providedBuffer = Buffer.from(signature, 'utf8');
+    const computedBuffer = Buffer.from(computedHmac, 'utf8');
+
+    if (providedBuffer.length !== computedBuffer.length || !crypto.timingSafeEqual(providedBuffer, computedBuffer)) {
+        throw new Error('HMAC cryptographic signature validation failed. Payload rejected.');
+    }
+
+    const parsedData = typeof inputItem.json === 'string' ? JSON.parse(inputItem.json) : inputItem.json;
+
+    return {
+        json: {
+            eventId: parsedData.id || `evt_${crypto.randomBytes(8).toString('hex')}`,
+            eventType: parsedData.type || 'unknown.event',
+            objectType: parsedData.object || 'generic',
+            createdTimestamp: parsedData.created || Date.now(),
+            sanitizedPayload: parsedData.data?.object || parsedData
+        }
+    };
+}
+
+return $input.all().map(item => validateAndSanitizeWebhook(item));</code></pre>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-3">
+                    <div class="section-marker">03</div>
+                    <div class="section-content">
+                        <p class="mini-label">03 / State Management</p>
+                        <h3>3. Distributed Idempotency and State Management</h3>
+                        <p>In high-throughput event pipelines, webhooks are frequently delivered more than once due to network retries by third-party services. Processing a payment retry webhook twice can result in double-invoicing or redundant remediation actions. To guarantee exactly-once processing semantics, the pipeline utilizes a persistent transactional ledger backed by PostgreSQL with unique constraints on the <code>event_id</code> field.</p>
+                        
+                        <h4>Database Schema for State Tracking</h4>
+                        <pre><code class="language-sql">CREATE TABLE webhook_idempotency_ledger (
+    event_id VARCHAR(255) PRIMARY KEY,
+    event_type VARCHAR(100) NOT NULL,
+    payload_hash VARCHAR(64) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'PROCESSING',
+    execution_context JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_ledger_status ON webhook_idempotency_ledger(status);</code></pre>
+
+                        <h4>Idempotency Enforcement Algorithm</h4>
+                        <div class="mermaid">
+graph LR
+    Webhook["Incoming Webhook Event"] --> Insert["SQL INSERT ON CONFLICT DO NOTHING"]
+    Insert -->|0 Rows Affected| Conflict["Duplicate Identified<br>Halt & return 200 OK"]
+    Insert -->|1 Row Affected| Process["Execute Pipeline"]
+    Process --> Update["Update State to COMPLETED"]
+                        </div>
+                        <ul>
+                            <li><strong>Insert Attempt:</strong> When an event enters the workflow, an SQL node attempts an atomic <code>INSERT INTO webhook_idempotency_ledger ... ON CONFLICT DO NOTHING</code>.</li>
+                            <li><strong>Conflict Resolution:</strong> If the insert returns zero affected rows, the engine identifies the event as a duplicate. It immediately halts execution, logs the duplicate drop, and returns an HTTP 200 OK to the sender.</li>
+                            <li><strong>State Transition:</strong> Upon successful pipeline completion, an update node transitions the state from PROCESSING to COMPLETED.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-4">
+                    <div class="section-marker">04</div>
+                    <div class="section-content">
+                        <p class="mini-label">04 / Routing</p>
+                        <h3>4. AI-Driven Intent Classification & Agentic Routing</h3>
+                        <p>Once verified and de-duplicated, the structured event payload passes into an Advanced AI Agent Node powered by LangChain integration. Rather than rigid if-else blocks, the LLM analyzes messy error strings, stack traces, and transaction metadata.</p>
+                        <p><strong>Few-Shot Prompting Strategy:</strong> The agent is primed with explicit system prompts and few-shot examples to map irregular inputs to precise schema definitions:</p>
+                        <ul>
+                            <li><strong>Severity Levels:</strong> CRITICAL (active system outage, complete revenue blockage), WARNING (degraded performance, single-user payment failure), LOW (informational logs, non-blocking errors).</li>
+                            <li><strong>Target Departments:</strong> BILLING_OPS, DEVOPS_INFRA, CUSTOMER_SUCCESS.</li>
+                        </ul>
+                        <p><strong>Dynamic Routing:</strong> Output tokens from the agent are passed directly into n8n's Switch Node, which branches execution paths asynchronously based on intent tags without blocking concurrent executions.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-5">
+                    <div class="section-marker">05</div>
+                    <div class="section-content">
+                        <p class="mini-label">05 / Remediation</p>
+                        <h3>5. Autonomous Remediation & Self-Healing Logic</h3>
+                        <p>Execution branches diverge based on the structured classification output from the AI node:</p>
+                        
+                        <div class="mermaid">
+graph LR
+    Intent["AI Intent Classification"] -->|BILLING_OPS| Billing["Fetch User LTV/Tier"]
+    Billing --> Email["Send Personalized Recovery Link (Stripe)"]
+    
+    Intent -->|DEVOPS_INFRA| DevOps["RAG Vector Retrieval (Runbooks)"]
+    DevOps --> Slack["Structured Block Kit to On-Call via Slack API"]
+    
+    Intent -->|5xx Errors / Latency| Fallback["Exponential Backoff Loop"]
+    Fallback -->|Retry Exhausted| Pager["Escalate via PagerDuty"]
+                        </div>
+
+                        <h4>A. Revenue Recovery Branch (Billing Operations)</h4>
+                        <p>When an enterprise payment gateway drops a subscription renewal or invoice payment fails:</p>
+                        <ul>
+                            <li><strong>Account Enrichment:</strong> The workflow executes a parameterized SQL query against the core PostgreSQL user database to fetch user lifetime value (LTV), subscription tier, and active payment method metadata.</li>
+                            <li><strong>Dynamic Contextual LLM Generation:</strong> An LLM node generates a hyper-personalized, empathetic recovery communication (Email/SMS) containing a secure, time-limited Stripe checkout session link.</li>
+                            <li><strong>Execution Dispatch:</strong> The message is routed through SendGrid or Twilio, and the recovery state is updated in the ledger.</li>
+                        </ul>
+
+                        <h4>B. Infrastructure Incident Triage Branch (DevOps Engineering)</h4>
+                        <p>When an infrastructure monitoring alert fires:</p>
+                        <ul>
+                            <li><strong>RAG Vector Retrieval:</strong> The error stack trace is embedded and queried against an internal vector database (Pinecone or Milvus) containing historical post-mortems, architectural runbooks, and internal documentation.</li>
+                            <li><strong>Automated Runbook Extraction:</strong> The top matching operational runbook is extracted and fed into an action synthesizer.</li>
+                            <li><strong>Interactive Paging:</strong> A structured Block Kit message is dispatched via the Slack API to the designated on-call engineering channel. The payload includes interactive buttons (Execute Auto-Remediation, Escalate to Lead, Ignore).</li>
+                        </ul>
+
+                        <h4>C. Advanced Circuit Breaking and Fallback Mechanisms</h4>
+                        <p>If primary third-party APIs experience latency spikes exceeding 4,000ms or return 5xx errors:</p>
+                        <ul>
+                            <li><strong>Exponential Backoff Loops:</strong> n8n's loop nodes execute automated retry cycles with randomized jitter (e.g., 1s, 2s, 4s, 8s backoff intervals).</li>
+                            <li><strong>Error Trigger Escalation:</strong> If all retry attempts exhaust, a dedicated Error Trigger Node catches the fatal execution context and pages the primary on-call engineer via PagerDuty or an emergency webhook.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-6">
+                    <div class="section-marker">06</div>
+                    <div class="section-content">
+                        <p class="mini-label">06 / Developer Portal</p>
+                        <h3>6. The Interactive API Developer Portal (FastAPI & PostgreSQL)</h3>
+                        <p>To provide developers with an intuitive interface, backend services use FastAPI to expose robust RESTful operations. Below is a production-grade router demonstrating Pydantic v2 validation, dependency injection, and Bearer token verification.</p>
+                        
+                        <pre><code class="language-python">from typing import Optional
+from uuid import UUID
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from pydantic import BaseModel, Field
+
+router = APIRouter(prefix="/api/v1/queries", tags=["Queries & Inference"])
+
+class QueryCreateRequest(BaseModel):
+    prompt: str = Field(..., min_length=3, max_length=2000, description="Input query or inference prompt.")
+    model_version: str = Field(default="gpt-4o", description="Target inference engine model version.")
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling randomness constraint.")
+
+class QueryResponseSchema(BaseModel):
+    id: UUID
+    status: str
+    prompt: str
+    model_version: str
+    result_payload: Optional[dict] = None
+
+def verify_bearer_token(authorization: Optional[str] = Header(None)) -> str:
+    """Validates standard Bearer token format from request headers."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing authentication token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = authorization.split(" ")[1]
+    if token != "valid_enterprise_token_sample":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token does not possess necessary execution scopes."
+        )
+    return token
+
+@router.post("/", response_model=QueryResponseSchema, status_code=status.HTTP_201_CREATED)
+def create_complex_query(
+    payload: QueryCreateRequest,
+    token: str = Depends(verify_bearer_token)
+):
+    """
+    Create and execute a new complex data or AI inference query task.
+    """
+    return {
+        "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+        "status": "PROCESSING",
+        "prompt": payload.prompt,
+        "model_version": payload.model_version,
+        "result_payload": None
+    }</code></pre>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-7">
+                    <div class="section-marker">07</div>
+                    <div class="section-content">
+                        <p class="mini-label">07 / Error Handling</p>
+                        <h3>7. Comprehensive Error Handling & Status Code Matrix</h3>
+                        <p>Standardized error propagation across both workflow automation dead-letter branches and API endpoints ensures predictable debugging and client handling.</p>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Status Code</th>
+                                    <th>Error Classification</th>
+                                    <th>Root Cause / Context</th>
+                                    <th>Example Response Body</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>200 OK</strong></td>
+                                    <td>Success</td>
+                                    <td>Request processed successfully.</td>
+                                    <td><code>{"status": "COMPLETED"}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>201 Created</strong></td>
+                                    <td>Resource Created</td>
+                                    <td>Target resource successfully provisioned.</td>
+                                    <td><code>{"id": "...", "status": "PROCESSING"}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>400 Bad Request</strong></td>
+                                    <td>Validation Error</td>
+                                    <td>Malformed JSON schema or missing parameters.</td>
+                                    <td><code>{"detail": [{"loc": ["body", "prompt"], "msg": "field required"}]}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>401 Unauthorized</strong></td>
+                                    <td>Authentication Error</td>
+                                    <td>Missing or invalid Bearer token header.</td>
+                                    <td><code>{"detail": "Invalid or missing authentication token."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>403 Forbidden</strong></td>
+                                    <td>Authorization Error</td>
+                                    <td>Token lacks required scope permissions.</td>
+                                    <td><code>{"detail": "Token does not possess necessary execution scopes."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>404 Not Found</strong></td>
+                                    <td>Missing Resource</td>
+                                    <td>Specified UUID record does not exist in database.</td>
+                                    <td><code>{"detail": "Query instance not found."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>429 Too Many Requests</strong></td>
+                                    <td>Rate Limit Exceeded</td>
+                                    <td>Client exceeded throughput constraints.</td>
+                                    <td><code>{"detail": "Rate limit exceeded. Retry after 60 seconds."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>500 Internal Error</strong></td>
+                                    <td>Server Exception</td>
+                                    <td>Unhandled database timeout or dependency crash.</td>
+                                    <td><code>{"detail": "Internal database transaction timeout."}</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-8">
+                    <div class="section-marker">08</div>
+                    <div class="section-content">
+                        <p class="mini-label">08 / OpenAPI</p>
+                        <h3>8. OpenAPI & Swagger Portal Configuration</h3>
+                        <p>FastAPI natively compiles runtime routing structures into an OpenAPI 3.0 specification. The configuration script below injects custom metadata, global bearer security schemes, and custom Swagger UI styling assets for the developer portal.</p>
+                        
+                        <pre><code class="language-python">from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
+
+app = FastAPI(
+    title="Enterprise Autonomous Intelligence & Query Gateway",
+    version="2.4.0",
+    description="Production-grade developer API portal featuring asynchronous PostgreSQL integration, multi-agent query routing, and real-time streaming status pipelines.",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    swagger_ui_parameters={
+        "syntaxHighlight.theme": "obsidian",
+        "persistAuthorization": True,
+        "tryItOutEnabled": True
+    }
+)
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+    
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+            "description": "Enter your issued enterprise Bearer token in the format: Bearer <token>"
+        }
+    }
+    
+    for path in openapi_schema["paths"]:
+        for method in openapi_schema["paths"][path]:
+            openapi_schema["paths"][path][method]["security"] = [{"BearerAuth": []}]
+            
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi</code></pre>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-9">
+                    <div class="section-marker">09</div>
+                    <div class="section-content">
+                        <p class="mini-label">09 / Conclusion</p>
+                        <h3>9. Conclusion</h3>
+                        <p>By combining the workflow orchestration capacity of self-hosted n8n, the cognitive reasoning of LangChain LLM agents, high-performance FastAPI routers, and robust backend engineering primitives (HMAC verification, PostgreSQL idempotency, RAG runbooks), engineering teams can construct autonomous systems that vastly outperform basic SaaS automation tools. This architecture eliminates silent revenue leakage, minimizes operational overhead, and establishes an elite benchmark for production-grade workflow automation and interactive API portals.</p>
+                    </div>
+                </section>
+            </div>
+        </article>
+    </main>
+    <script src="script.js"></script>
+    <script>
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.style.position = 'relative';
+            pre.style.overflowX = 'auto';
+            const btn = document.createElement('button');
+            btn.innerText = 'Copy';
+            btn.style.position = 'absolute';
+            btn.style.top = '10px';
+            btn.style.right = '10px';
+            btn.style.padding = '4px 8px';
+            btn.style.cursor = 'pointer';
+            btn.style.background = '#333';
+            btn.style.color = '#fff';
+            btn.style.border = 'none';
+            btn.style.borderRadius = '4px';
+            btn.style.fontSize = '12px';
+            btn.style.zIndex = '10';
+            btn.onclick = () => {
+                const code = pre.querySelector('code').innerText;
+                navigator.clipboard.writeText(code);
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            };
+            pre.appendChild(btn);
+        });
+    </script>
+</body>
+</html>

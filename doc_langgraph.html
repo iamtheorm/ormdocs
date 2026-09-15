@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph Multi-Agent Architecture Guide</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
+</head>
+<body class="dossier-theme">
+    <div class="progress-track"><span id="progress-bar"></span></div>
+
+    <nav class="site-header">
+        <a href="index.html" class="logo" style="text-decoration: none; font-weight: bold; font-family: var(--font-mono); color: var(--text-primary);">&lt;DocEng /&gt;</a>
+        <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+    </nav>
+
+    <main class="blogs-page">
+        <aside class="section-rail">
+            <div class="rail-heading"><span>Dossier Map</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active"><span>01</span><strong>The Enterprise Imperative</strong></a>
+                <a href="#section-2"><span>02</span><strong>System Overview</strong></a>
+                <a href="#section-3"><span>03</span><strong>State & Handoffs</strong></a>
+                <a href="#section-4"><span>04</span><strong>Architecture Flowchart</strong></a>
+                <a href="#section-5"><span>05</span><strong>Context Passing</strong></a>
+                <a href="#section-6"><span>06</span><strong>Production Bottlenecks</strong></a>
+                <a href="#section-7"><span>07</span><strong>Functional Implementation</strong></a>
+            </nav>
+        </aside>
+
+        <article class="article research-note reveal">
+            <header class="article-header">
+                <div class="dossier-banner">
+                    <span>Architecture Guide / LangGraph</span>
+                    <span>Audience / Software Architects</span>
+                    <span>Status / Published</span>
+                </div>
+                <h2>LangGraph Multi-Agent Architecture Guide</h2>
+                <p class="article-subtitle">Architecting Automated Reasoning Engines: A Deep Dive into LangGraph Multi-Agent Orchestration</p>
+            </header>
+
+            <div class="article-body">
+                <section class="prose-section" id="section-1">
+                    <div class="section-marker">01</div>
+                    <div class="section-content">
+                        <p class="mini-label">01 / Introduction</p>
+                        <h3>The Enterprise Imperative for Multi-Agent Systems</h3>
+                        <p>The integration of artificial intelligence into mission-critical enterprise environments has fundamentally shifted from monolithic, single-agent models to sophisticated, coordinated multi-agent systems (MAS). In highly regulated, precision-dependent domains such as revenue cycle management (RCM), transaction processing, and compliance auditing, a single large language model (LLM) tasked with end-to-end execution inevitably falters. Monolithic agents suffer from context window degradation, permission drift, and an inability to reliably verify their own outputs when operating across complex, multi-step workflows.</p>
+                        
+                        <p>In a revenue recovery or transaction-processing workflow, operations are strictly gated by business rules and compliance mandates. An incoming transaction dispute or a failed payment retry must be extracted, validated against internal enterprise resource planning (ERP) databases, evaluated for regulatory compliance, and eventually resolved or escalated for human review.</p>
+
+                        <p>Deploying a single agent to handle data extraction, database querying, logical reasoning, and client communication creates an exponentially growing context window. As the context expands throughout a session, the underlying LLM loses focus, hallucination rates spike due to semantic distraction, and API inference latency renders the system unusable for real-time transaction processing. Furthermore, zero-trust security principles dictate that a data-extraction agent should never possess the same database write permissions as the payment-approval agent.</p>
+
+                        <p>Multi-agent systems solve this architectural bottleneck by instantiating networks of specialized agents. An orchestrator or supervisor delegates tasks to specialist sub-agents (e.g., a Validation Agent, an Audit Agent, a Resolution Agent), each equipped with a narrowly scoped system prompt and a specific subset of executable tools.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Orchestration Topology</th>
+                                    <th>Architectural Mechanism</th>
+                                    <th>Optimal Enterprise Use Case</th>
+                                    <th>Drawbacks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sequential Pipeline</td>
+                                    <td>Agent outputs feed directly into the next agent in a deterministic sequence.</td>
+                                    <td>Linear invoice processing workflows (Extraction → Validation → Payment).</td>
+                                    <td>Inflexible; cannot easily handle cyclic error-correction or dynamic routing.</td>
+                                </tr>
+                                <tr>
+                                    <td>Parallel Fan-Out</td>
+                                    <td>Multiple specialized agents process the identical input simultaneously, with results merged by a coordinator.</td>
+                                    <td>Comprehensive risk assessment (simultaneously analyzing credit, market, and compliance risks).</td>
+                                    <td>High concurrent token cost; requires a robust synthesis layer to resolve conflicting outputs.</td>
+                                </tr>
+                                <tr>
+                                    <td>Supervisor Pattern</td>
+                                    <td>A central routing agent evaluates the state and dynamically delegates tasks to worker sub-agents, synthesizing final decisions.</td>
+                                    <td>Dynamic transaction recovery where the failure root cause dictates the necessary specialist intervention.</td>
+                                    <td>The supervisor becomes a single point of failure and a potential latency bottleneck.</td>
+                                </tr>
+                                <tr>
+                                    <td>Event-Driven Mesh</td>
+                                    <td>Agents react independently to events in a shared stream, coordinating implicitly through state updates.</td>
+                                    <td>Decentralized enterprise ecosystems where varied systems trigger autonomous workflows.</td>
+                                    <td>Extremely difficult to audit; high risk of runaway execution loops and state corruption.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-2">
+                    <div class="section-marker">02</div>
+                    <div class="section-content">
+                        <p class="mini-label">02 / Foundation</p>
+                        <h3>LangGraph System Overview</h3>
+                        <p>LangGraph operates as a stateful graph runtime built on top of directed acyclic and cyclic graphs. It fundamentally moves away from the opaque, unpredictable abstractions of traditional agent executors, instead exposing the internal decision loop of the AI as a mutable, trackable, and highly controlled state object.</p>
+
+                        <h4>The State Contract and Schema Design</h4>
+                        <p>At the core of every LangGraph implementation resides the State. The state is a shared memory object that flows continuously through the graph, storing all relevant information such as conversational messages, workflow variables, intermediate analytical results, and historical routing decisions. The schema for this state is typically defined using Python's TypedDict, dataclasses, or Pydantic BaseModel objects.</p>
+
+                        <p>Every node within the graph acts as a function that reads from this overarching state contract and returns a dictionary containing a state delta, representing only the specific keys it wishes to update. The mechanism by which these updates are applied to the global state is governed by Reducers. If a state key lacks an explicit reducer function, LangGraph applies a default "last-write-wins" policy.</p>
+
+                        <p>However, for sequential data—such as a continuous log of conversation history—reducers are strictly mandatory. For instance, the built-in <code>add_messages</code> reducer intelligently merges new messages with the existing conversation timeline, ensuring that message IDs are respected and history is preserved rather than overwritten.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-3">
+                    <div class="section-marker">03</div>
+                    <div class="section-content">
+                        <p class="mini-label">03 / Routing</p>
+                        <h3>Nodes, Edges, and State Transitions</h3>
+                        <p>Nodes are the operational units of the graph. In a multi-agent system, a node typically encapsulates the invocation of a specific LLM, a compiled subgraph representing a distinct agent, or a deterministic Python function executing a database query.</p>
+
+                        <p>Edges dictate the precise flow of execution between nodes. LangGraph provides three primary mechanisms for routing:</p>
+                        <ul>
+                            <li><strong>Static Edges:</strong> Route execution deterministically from one node to another.</li>
+                            <li><strong>Conditional Edges:</strong> Rely on a routing function to evaluate the current state of the graph and dynamically return the string identifier of the next destination node.</li>
+                            <li><strong>The Command API:</strong> A primitive that allows nodes to dynamically determine their own routing at runtime, returning a specific Command object that dictates both the state update and the target destination simultaneously.</li>
+                        </ul>
+
+                        <h4>State Transitions and the Command Primitive</h4>
+                        <p>When implementing handoffs in a hierarchical subgraph architecture, the handoff tool returns <code>Command(goto="target_agent", graph=Command.PARENT)</code>. The <code>graph=Command.PARENT</code> directive forces the routing instruction to bypass the sub-agent's local routing logic and bubble up to the overarching supervisor graph. Without this directive, the sub-agent would attempt to route to a non-existent local node within its own isolated subgraph, causing an immediate execution failure.</p>
+
+                        <h4>Handoff Mechanics and Context Engineering</h4>
+                        <p>Executing a subgraph handoff via the Command API introduces a critical context engineering challenge. Modern LLM APIs strictly require every <code>AIMessage</code> containing a tool call to be immediately followed by a corresponding <code>ToolMessage</code>. If an orchestrator attempts to transfer control to the next agent by passing the AIMessage without its corresponding ToolMessage pair, the receiving LLM is presented with a "dangling" tool call.</p>
+                        <p>To engineer a safe handoff, the routing tool must artificially construct a <code>ToolMessage</code> confirming the transfer, package it alongside the original AIMessage, and push both into the shared state update via the Command object.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-4">
+                    <div class="section-marker">04</div>
+                    <div class="section-content">
+                        <p class="mini-label">04 / Diagram</p>
+                        <h3>Automated Reasoning Engine Architecture</h3>
+                        <p>The following diagram illustrates the architecture of a multi-agent transaction recovery system. The orchestrator receives the transaction payload, the execution state is durably persisted via a Postgres checkpointer, and execution is dynamically routed to specialized sub-agents using the Command.PARENT handoff pattern.</p>
+
+                        <div class="mermaid">
+flowchart LR
+    %% Define Styles
+    classDef supervisor fill:#2d3748,stroke:#4a5568,stroke-width:2px,color:#fff
+    classDef agent fill:#2b6cb0,stroke:#63b3ed,stroke-width:2px,color:#fff
+    classDef state fill:#276749,stroke:#48bb78,stroke-width:2px,color:#fff
+    classDef tools fill:#744210,stroke:#d69e2e,stroke-width:2px,color:#fff
+
+    Input((Incoming<br>Transaction)) --> State[Graph State & Memory<br>PostgresSaver Checkpointer]:::state
+    State --> Supervisor{Supervisor<br>Orchestrator}:::supervisor
+
+    Supervisor -- "Route: Validation" --> ValidationAgent[Validation Agent<br>Subgraph]:::agent
+    Supervisor -- "Route: Audit" --> AuditAgent[Audit & Compliance Agent<br>Subgraph]:::agent
+    Supervisor -- "Route: Recovery" --> RecoveryAgent[Resolution Agent<br>Subgraph]:::agent
+
+    ValidationAgent -.->|"Command.PARENT"| Supervisor
+    AuditAgent -.->|"Command.PARENT"| Supervisor
+    RecoveryAgent -.->|"Command.PARENT"| Supervisor
+
+    ValidationAgent --> DBTools[(ERP / Database<br>Tools)]:::tools
+    AuditAgent --> PolicyTools[(Policy Knowledge<br>RAG Tools)]:::tools
+    RecoveryAgent --> APITools[(Payment Gateway<br>APIs)]:::tools
+
+    Supervisor -- "Route: END" --> Output((Final<br>Resolution Report))
+                        </div>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-5">
+                    <div class="section-marker">05</div>
+                    <div class="section-content">
+                        <p class="mini-label">05 / Memory</p>
+                        <h3>Context Passing and Advanced Memory Management</h3>
+                        <p>A paramount failure point in any multi-agent transaction processing system is the unchecked accumulation of conversational context. As multiple agents debate constraints, invoke external tools, and hand off control, the messages array within the graph state grows exponentially. Systems must employ rigorous context engineering methodologies categorized into four distinct strategies: Writing, Selecting, Compressing, and Isolating.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Context Engineering Strategy</th>
+                                    <th>Operational Mechanism</th>
+                                    <th>Optimal Use Case</th>
+                                    <th>Primary Drawbacks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Token Trimming</td>
+                                    <td>Slices the state's message array using a precise sliding window based on dynamic token counts.</td>
+                                    <td>Strict budget enforcement and managing highly elongated transaction histories.</td>
+                                    <td>Results in the permanent loss of the earliest dialogue; risks severing tool-call boundaries if configured improperly.</td>
+                                </tr>
+                                <tr>
+                                    <td>Summarization</td>
+                                    <td>A background LLM processes early messages and compresses them into a semantic narrative summary.</td>
+                                    <td>Complex investigations where the initial user intent must be retained indefinitely.</td>
+                                    <td>Introduces inference latency; risks stripping away highly specific granular identifiers.</td>
+                                </tr>
+                                <tr>
+                                    <td>Explicit Deletion</td>
+                                    <td>Programmatically issues a RemoveMessage instruction to permanently purge specific message IDs.</td>
+                                    <td>Workflows containing clearly delineated phases where scratchpad reasoning can be discarded.</td>
+                                    <td>Requires meticulous lifecycle management of message IDs.</td>
+                                </tr>
+                                <tr>
+                                    <td>Subgraph Isolation</td>
+                                    <td>Agents operate within private subgraphs possessing local state schemas, returning only synthesized final summaries.</td>
+                                    <td>Ecosystems characterized by heavy localized reasoning and complex error-correction loops.</td>
+                                    <td>Elevates architectural complexity; necessitates explicit data mapping.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>The "Compress" Strategy: Semantic Trimming</h4>
+                        <p>To implement a sliding window safely, the system utilizes LangChain's <code>trim_messages</code> utility. Critically, <code>trim_messages</code> is designed to respect system prompts and tool boundaries. By configuring parameters such as <code>include_system=True</code>, <code>start_on="human"</code>, and <code>end_on=("human", "tool")</code>, engineers guarantee that the context window remains strictly bounded and semantically valid before execution transitions to the LLM.</p>
+
+                        <h4>The "Summarize" Strategy and RemoveMessage Mechanics</h4>
+                        <p>When the message array crosses a defined threshold, the graph triggers a conditional edge routing to a dedicated summarizer node. This background node reads the raw transaction history, generates a compressed summary, and yields a list of <code>RemoveMessage</code> objects targeting the exact IDs of the old messages. When the reducer encounters a <code>RemoveMessage(id=msg_id)</code>, it actively traverses the persisted state array and permanently deletes the original message matching that ID.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-6">
+                    <div class="section-marker">06</div>
+                    <div class="section-content">
+                        <p class="mini-label">06 / Security & Scaling</p>
+                        <h3>Overcoming Production Bottlenecks</h3>
+                        <p>Transitioning a multi-agent reasoning engine into a mission-critical environment reveals profound architectural vulnerabilities.</p>
+                        
+                        <h4>Checkpoint Serialization Latency</h4>
+                        <p>LangGraph utilizes full metadata serialization for every channel value upon every checkpoint write. In financial workflows, injecting massive database dumps directly into the graph state causes structural bloat. This overhead rapidly exhausts Postgres or Redis connection pools. To mitigate this, enterprise architectures must strictly decouple execution state from data storage using the Model Context Protocol (MCP) or an external key-value store. The LangGraph state should only store lightweight, easily serializable references (e.g., <code>document_id_12345</code>).</p>
+
+                        <h4>Cascading Errors and Systemic Failures</h4>
+                        <p>If a Validation Agent hallucinates a non-existent policy constraint and passes it seamlessly to the Audit Agent, the Audit Agent operates on that false premise with absolute certainty. Preventing these cascading vulnerabilities requires strict, pre-hoc typed boundaries:</p>
+                        <ul>
+                            <li><strong>Pydantic Validation at Execution Edges:</strong> Utilize structured output validation to enforce rigorous type checking on any data payload crossing an agent boundary. If validation fails, force a <code>ToolMessage(is_error=True)</code> back into the offending agent's local state to trigger a self-correction loop.</li>
+                            <li><strong>Context Filtering Handoffs:</strong> Never pass the full, unfiltered message history to a downstream agent. When utilizing the Command API, pass only the final summarized AIMessage and the corresponding synthetic ToolMessage.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-7">
+                    <div class="section-marker">07</div>
+                    <div class="section-content">
+                        <p class="mini-label">07 / Implementation</p>
+                        <h3>Functional Python Implementation</h3>
+                        <p>The following functional Python implementation demonstrates how to build the core orchestration loop for a multi-agent transaction recovery system.</p>
+                        <pre><code><span class="token-keyword">from</span> typing <span class="token-keyword">import</span> Annotated, Literal
+<span class="token-keyword">from</span> typing_extensions <span class="token-keyword">import</span> NotRequired, TypedDict
+<span class="token-keyword">from</span> langchain_core.messages <span class="token-keyword">import</span> BaseMessage, AIMessage, ToolMessage, trim_messages
+<span class="token-keyword">from</span> langchain_core.tools <span class="token-keyword">import</span> tool, ToolRuntime
+<span class="token-keyword">from</span> langgraph.graph <span class="token-keyword">import</span> StateGraph, START, END
+<span class="token-keyword">from</span> langgraph.graph.message <span class="token-keyword">import</span> add_messages
+<span class="token-keyword">from</span> langgraph.types <span class="token-keyword">import</span> Command
+<span class="token-keyword">from</span> langchain_openai <span class="token-keyword">import</span> ChatOpenAI
+
+<span class="token-comment"># 1. Define the Shared State Schema with Reducers</span>
+<span class="token-keyword">class</span> <span class="token-type">MultiAgentState</span>(TypedDict):
+    transaction_id: <span class="token-type">str</span>
+    active_agent: NotRequired[<span class="token-type">str</span>]
+    messages: Annotated[<span class="token-type">list</span>[BaseMessage], add_messages]
+    resolution_status: NotRequired[<span class="token-type">str</span>]
+
+<span class="token-comment"># 2. Define Handoff Tools using Command.PARENT</span>
+@tool
+<span class="token-keyword">def</span> <span class="token-function">transfer_to_audit</span>(runtime: ToolRuntime) -> Command:
+    <span class="token-string">"""Transfer the transaction to the Audit and Compliance agent."""</span>
+    last_ai_message = <span class="token-function">next</span>(
+        msg <span class="token-keyword">for</span> msg <span class="token-keyword">in</span> <span class="token-function">reversed</span>(runtime.state[<span class="token-string">"messages"</span>]) 
+        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(msg, AIMessage) <span class="token-keyword">and</span> msg.tool_calls
+    )
+    
+    acknowledgment = ToolMessage(
+        content=<span class="token-string">"Successfully transferred context to Audit Agent."</span>,
+        tool_call_id=runtime.tool_call_id,
+    )
+    
+    <span class="token-keyword">return</span> Command(
+        goto=<span class="token-string">"audit_agent"</span>,
+        update={
+            <span class="token-string">"active_agent"</span>: <span class="token-string">"audit_agent"</span>,
+            <span class="token-string">"messages"</span>: [last_ai_message, acknowledgment]
+        },
+        graph=Command.PARENT
+    )
+
+@tool
+<span class="token-keyword">def</span> <span class="token-function">transfer_to_validation</span>(runtime: ToolRuntime) -> Command:
+    <span class="token-string">"""Transfer the transaction to the Validation agent for ERP data retrieval."""</span>
+    last_ai_message = <span class="token-function">next</span>(
+        msg <span class="token-keyword">for</span> msg <span class="token-keyword">in</span> <span class="token-function">reversed</span>(runtime.state[<span class="token-string">"messages"</span>]) 
+        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(msg, AIMessage) <span class="token-keyword">and</span> msg.tool_calls
+    )
+    acknowledgment = ToolMessage(
+        content=<span class="token-string">"Successfully transferred context to Validation Agent."</span>,
+        tool_call_id=runtime.tool_call_id,
+    )
+    <span class="token-keyword">return</span> Command(
+        goto=<span class="token-string">"validation_agent"</span>,
+        update={
+            <span class="token-string">"active_agent"</span>: <span class="token-string">"validation_agent"</span>,
+            <span class="token-string">"messages"</span>: [last_ai_message, acknowledgment]
+        },
+        graph=Command.PARENT
+    )
+
+<span class="token-comment"># 3. Initialize the Engine and Bind Tools</span>
+llm = ChatOpenAI(model=<span class="token-string">"gpt-4o"</span>, temperature=<span class="token-keyword">0</span>)
+
+validation_llm = llm.bind_tools([transfer_to_audit])
+audit_llm = llm.bind_tools([transfer_to_validation])
+
+<span class="token-keyword">def</span> <span class="token-function">validation_node</span>(state: MultiAgentState) -> Command:
+    <span class="token-string">"""Node representing the Validation Agent."""</span>
+    trimmed_history = <span class="token-function">trim_messages</span>(
+        state[<span class="token-string">"messages"</span>],
+        max_tokens=<span class="token-keyword">8000</span>,
+        strategy=<span class="token-string">"last"</span>,
+        token_counter=<span class="token-function">len</span>, 
+        start_on=<span class="token-string">"human"</span>,    
+        end_on=(<span class="token-string">"human"</span>, <span class="token-string">"tool"</span>) 
+    )
+    response = validation_llm.invoke(trimmed_history)
+    <span class="token-keyword">return</span> {<span class="token-string">"messages"</span>: [response]}
+
+<span class="token-keyword">def</span> <span class="token-function">audit_node</span>(state: MultiAgentState) -> Command:
+    <span class="token-string">"""Node representing the Audit Agent."""</span>
+    trimmed_history = <span class="token-function">trim_messages</span>(
+        state[<span class="token-string">"messages"</span>],
+        max_tokens=<span class="token-keyword">8000</span>,
+        strategy=<span class="token-string">"last"</span>,
+        token_counter=<span class="token-function">len</span>,
+        start_on=<span class="token-string">"human"</span>,
+        end_on=(<span class="token-string">"human"</span>, <span class="token-string">"tool"</span>)
+    )
+    response = audit_llm.invoke(trimmed_history)
+    <span class="token-keyword">return</span> {<span class="token-string">"messages"</span>: [response]}
+
+<span class="token-comment"># 4. Supervisor Routing Logic</span>
+<span class="token-keyword">def</span> <span class="token-function">route_execution</span>(state: MultiAgentState) -> Literal[<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, <span class="token-string">"__end__"</span>]:
+    <span class="token-string">"""Determines the next step based on the active agent's output."""</span>
+    messages = state.get(<span class="token-string">"messages"</span>, [])
+    <span class="token-keyword">if</span> messages:
+        last_msg = messages[-<span class="token-keyword">1</span>]
+        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(last_msg, AIMessage) <span class="token-keyword">and not</span> last_msg.tool_calls:
+            <span class="token-keyword">return</span> <span class="token-string">"__end__"</span>
+            
+    active = state.get(<span class="token-string">"active_agent"</span>, <span class="token-string">"validation_agent"</span>)
+    <span class="token-keyword">return</span> active
+
+<span class="token-comment"># 5. Graph Assembly and Compilation</span>
+builder = StateGraph(MultiAgentState)
+
+builder.add_node(<span class="token-string">"validation_agent"</span>, validation_node)
+builder.add_node(<span class="token-string">"audit_agent"</span>, audit_node)
+
+builder.add_conditional_edges(START, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>])
+builder.add_conditional_edges(<span class="token-string">"validation_agent"</span>, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, END])
+builder.add_conditional_edges(<span class="token-string">"audit_agent"</span>, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, END])
+
+<span class="token-keyword">from</span> langgraph.checkpoint.memory <span class="token-keyword">import</span> InMemorySaver
+memory = InMemorySaver()
+app = builder.compile(checkpointer=memory)</code></pre>
+                    </div>
+                </section>
+
+
+            </div>
+        </article>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

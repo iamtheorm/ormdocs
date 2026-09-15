@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>macOS Swift Open Source Contributor Guide</title>
+    <meta name="description" content="An exhaustive architectural guide and template repository for onboarding external developers to native macOS utility apps written in Swift. Covers headless builds, code-signing circumvention, TCC debugging, and strict concurrency.">
+    <meta name="keywords" content="macOS, Swift 6, xcodebuild, Open Source, DocC, Entitlements, Developer Relations">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
+</head>
+<body class="dossier-theme">
+    <div class="progress-track"><span id="progress-bar"></span></div>
+
+    <nav class="site-header">
+        <a href="index.html" class="logo" style="text-decoration: none; font-weight: bold; font-family: var(--font-mono); color: var(--text-primary);">&lt;DocEng /&gt;</a>
+        <a href="index.html#portfolio" class="back-link" style="margin-bottom: 0;">Back to Portfolio</a>
+    </nav>
+
+    <main class="blogs-page">
+        <aside class="section-rail">
+            <div class="rail-heading"><span>Dossier Map</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active"><span>01</span><strong>Baseline Architecture</strong></a>
+                <a href="#section-2"><span>02</span><strong>Code-Signing & Headless</strong></a>
+                <a href="#section-3"><span>03</span><strong>Test Automation</strong></a>
+                <a href="#section-4"><span>04</span><strong>Quality & Concurrency</strong></a>
+                <a href="#section-5"><span>05</span><strong>Security & TCC</strong></a>
+                <a href="#section-6"><span>06</span><strong>DocC Pipeline</strong></a>
+                <a href="#section-7"><span>07</span><strong>Branching Strategy</strong></a>
+            </nav>
+        </aside>
+
+        <article class="article research-note reveal">
+            <header class="article-header">
+                <div class="dossier-banner">
+                    <span>Developer Relations / Swift</span>
+                    <span>Audience / Open Source Contributors</span>
+                    <span>Status / Published Template</span>
+                </div>
+                <h2>Architecting the macOS Open-Source Contributor Guide</h2>
+                <p class="article-subtitle">A Comprehensive Framework for Native Swift Desktop Utilities</p>
+            </header>
+
+            <div class="article-body">
+                <section class="prose-section" id="section-0">
+                    <div class="section-content">
+                        <p>The barrier to entry for contributing to native Apple ecosystem open-source projects presents a formidable challenge that fundamentally differs from web or backend development. In traditional open-source web ecosystems, initializing a local environment typically requires a minimal set of package management commands. Conversely, native macOS desktop utility development is intricately bound to proprietary toolchains, rigid code-signing mandates, complex sandboxing entitlements, and a highly specialized build system. For an external developer attempting to contribute to a native Swift macOS application, the initial friction of configuring the environment, resolving provisioning profile conflicts, and navigating the nuances of the <code>xcodebuild</code> command-line interface can easily culminate in project abandonment.</p>
+                        <p>To cultivate a thriving open-source community around a macOS utility, project maintainers must architect a frictionless onboarding experience. This requires meticulously engineered build automation, the circumvention of code-signing roadblocks for local development, the enforcement of modern language safety protocols, and the deployment of interactive documentation. This exhaustive report details the architectural blueprint and technical configurations necessary to construct a robust contributor environment. It provides a comprehensive analysis of headless builds, test artifact extraction, Swift 6 concurrency enforcement, and Transparency, Consent, and Control (TCC) debugging. Furthermore, it culminates in the generation of polished, docs-as-code README.md and CONTRIBUTING.md deliverables designed to establish clear branching strategies and pull request guidelines for external contributors.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-1">
+                    <div class="section-marker">01</div>
+                    <div class="section-content">
+                        <p class="mini-label">01 / Baseline</p>
+                        <h3>1. Establishing the Baseline: Prerequisites and Toolchain Architecture</h3>
+                        <p>The foundation of a reliable open-source pipeline is the establishment of a standardized, deterministic baseline environment. To prevent the classic "it works on my machine" anti-pattern, the project must explicitly define its dependencies, target operating systems, and toolchain configurations, minimizing the surface area for environment-specific discrepancies.</p>
+                        
+                        <h4>1.1 macOS Targets and Xcode Toolchains</h4>
+                        <p>For a modern macOS utility designed to leverage the latest Apple frameworks—such as advanced SwiftUI view modifiers, AppKit interoperability, and SwiftData—the baseline deployment target must be strictly defined. Setting the minimum deployment target to macOS 14.0 (Sonoma) ensures access to the Observation framework and modern concurrency primitives, while Xcode 16.0 or later is mandatory to fully utilize the Swift 6 compiler. The Swift 6 compiler introduces strict concurrency checking by default, a paradigm shift that will be analyzed in detail in subsequent sections.</p>
+                        <p>Contributors must ensure their command-line tools are correctly mapped to the Xcode application rather than the standalone command-line tools directory. The command <code>xcode-select -p</code> allows developers to verify the active developer directory, which should return the path to the primary Xcode application bundle. If the path is incorrectly set, contributors must utilize the <code>sudo xcode-select -s</code> command to explicitly target the Xcode 16 installation.</p>
+                        
+                        <h4>1.2 Package Management Paradigms</h4>
+                        <p>Historically, iOS and macOS developers relied on third-party dependency managers such as CocoaPods or Carthage. These tools required external Ruby environments or Homebrew installations, adding significant overhead to the onboarding process and often introducing complex workspace modifications. Modern macOS open-source projects must exclusively adopt the Swift Package Manager (SPM). Because SPM is natively integrated into the Swift toolchain and the <code>xcodebuild</code> CLI, it requires zero additional installation steps for the contributor, effectively eliminating a major source of initial friction.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Dependency Manager</th>
+                                    <th>Integration Mechanism</th>
+                                    <th>Contributor Friction Level</th>
+                                    <th>Suitability for Open-Source macOS Utilities</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Swift Package Manager</strong></td>
+                                    <td>Native compiler integration; resolves via Package.swift.</td>
+                                    <td>Low (Zero external dependencies required).</td>
+                                    <td>Optimal. Natively supported by Apple, seamless headless resolution.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CocoaPods</strong></td>
+                                    <td>Ruby gem; generates .xcworkspace modifying project structure.</td>
+                                    <td>High (Requires Ruby environment, Podfile management).</td>
+                                    <td>Suboptimal. Introduces unnecessary environment configuration overhead.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carthage</strong></td>
+                                    <td>Homebrew binary; builds framework binaries dynamically.</td>
+                                    <td>Moderate (Requires Homebrew, manual framework linking).</td>
+                                    <td>Suboptimal. Slower build times and complex dynamic linking.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>By exclusively utilizing SPM, contributors cloning the repository can immediately proceed to code compilation without executing intermediate dependency resolution commands, as <code>xcodebuild</code> automatically resolves SPM dependencies implicitly during the initial build phase.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-2">
+                    <div class="section-marker">02</div>
+                    <div class="section-content">
+                        <p class="mini-label">02 / Headless Builds</p>
+                        <h3>2. The Code-Signing Paradox and Headless Compilation</h3>
+                        <p>The most significant architectural hurdle for external contributors interacting with Apple platforms is the code-signing requirement. By default, Xcode projects are configured to sign the application binary using the maintainer's specific Apple Developer Team ID and provisioning profiles. When an external contributor clones the repository and attempts a standard build, the build engine queries the local keychain for the maintainer's cryptographic identity, fails to locate it, and abruptly halts the compilation process.</p>
+                        
+                        <h4>2.1 Circumventing Code-Signing Constraints</h4>
+                        <p>To facilitate frictionless local compilation, the build automation framework must explicitly instruct the <code>xcodebuild</code> engine to bypass code signing entirely. This is achieved by injecting specific environment variables and build settings directly into the command-line invocation. The flags <code>CODE_SIGNING_ALLOWED=NO</code>, <code>CODE_SIGNING_REQUIRED=NO</code>, and <code>CODE_SIGN_IDENTITY=""</code> force the compiler to generate an ad-hoc, unsigned binary. While an unsigned binary cannot be notarized or distributed to end-users via Gatekeeper, it is perfectly functional for local execution and debugging on the contributor's host machine or within a macOS simulator.</p>
+                        <p>Contributors utilizing the terminal to build the project must execute a specifically structured <code>xcodebuild</code> command. The command specifies the scheme, the destination platform, and the customized derived data path to isolate build artifacts from other local projects.</p>
+
+                        <div class="mermaid">
+graph LR
+    Clone[Git Clone Repo] --> Select[Verify xcode-select]
+    Select --> Build[xcodebuild clean build]
+    Build -->|"CODE_SIGN_IDENTITY=''"| Artifact[Unsigned Binary]
+    Build -->|"COMPILER_INDEX_STORE_ENABLE=NO"| Fast[Fast Compilation]
+                        </div>
+
+                        <pre><code class="language-bash">xcodebuild clean build \
+  -scheme "MacOSUtilityApp" \
+  -destination 'platform=macOS' \
+  -derivedDataPath .build/DerivedData \
+  CODE_SIGN_IDENTITY="" \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGNING_ALLOWED=NO \
+  COMPILER_INDEX_STORE_ENABLE=NO | xcpretty</code></pre>
+
+                        <p>The inclusion of <code>COMPILER_INDEX_STORE_ENABLE=NO</code> optimizes build times for headless CI/CD environments or local test builds by disabling the generation of the Xcode indexing database, which is unnecessary when compiling purely via the CLI. Furthermore, piping the output through <code>xcpretty</code> (or equivalent modern formatters) is a highly recommended practice to transform the notoriously verbose and esoteric <code>xcodebuild</code> output into a readable, streamlined format.</p>
+
+                        <h4>2.2 Managing Derived Data and Artifact Cleanup</h4>
+                        <p>The macOS build system utilizes a centralized directory known as DerivedData to cache intermediate build products, module maps, and compiled binaries. In heavily collaborative open-source environments, stale DerivedData can lead to phantom compilation errors, specifically when switching branches that introduce complex dependency modifications. A robust contributor guide must provide clear instructions for isolating and flushing this cache.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>xcodebuild Parameter</th>
+                                    <th>Functionality within Contributor Workflow</th>
+                                    <th>Architectural Implication</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>-scheme</strong></td>
+                                    <td>Targets the specific executable or framework scheme within the project.</td>
+                                    <td>Defines the exact boundaries of the compilation target.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>-destination</strong></td>
+                                    <td>Specifies the target runtime architecture and platform (e.g., platform=macOS).</td>
+                                    <td>Directs the compiler to output macOS universal or architecture-specific binaries.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>-derivedDataPath</strong></td>
+                                    <td>Overrides the default global cache, redirecting output to a local directory.</td>
+                                    <td>Isolates project artifacts, enabling safe, localized clean operations without affecting other Xcode projects.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>clean</strong></td>
+                                    <td>Instructs the build system to purge existing artifacts before compilation.</td>
+                                    <td>Ensures a deterministic build state, mitigating caching anomalies.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>By enforcing the use of the <code>-derivedDataPath .build/DerivedData</code> flag, contributors isolate the project's build artifacts. This allows the execution of <code>xcodebuild clean</code> to target only the utility app's specific footprint, avoiding the aggressive and time-consuming process of clearing the global Xcode cache.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-3">
+                    <div class="section-marker">03</div>
+                    <div class="section-content">
+                        <p class="mini-label">03 / Test Automation</p>
+                        <h3>3. Test Automation and Diagnostic Artifact Extraction</h3>
+                        <p>A comprehensive automated testing suite is the primary mechanism for ensuring the stability of an open-source project. However, executing macOS tests via the command line introduces a unique set of challenges regarding code-signing, simulator management, and result parsing.</p>
+                        
+                        <h4>3.1 Headless Test Execution</h4>
+                        <p>Running tests locally without code signing requires the same bypass flags utilized during the application build phase. Test bundles, particularly XCTest targets, inherit build settings from their host applications but inherently lack complete Info.plist configurations. Without explicitly passing <code>CODE_SIGNING_ALLOWED=NO</code>, both the host application and the injected test targets will fail the pre-compilation signature verification checks, resulting in an immediate failure before any Swift code is compiled.</p>
+                        
+                        <pre><code class="language-bash">xcodebuild test \
+  -scheme "MacOSUtilityApp" \
+  -destination 'platform=macOS' \
+  -resultBundlePath "./TestResults.xcresult" \
+  CODE_SIGNING_ALLOWED=NO \
+  -quiet</code></pre>
+                        <p>The <code>-quiet</code> flag suppresses the overwhelming standard output of the compilation process, emitting logs only when a test fails or when the suite completes. This creates a much cleaner terminal experience for the contributor.</p>
+
+                        <h4>3.2 Mitigating CoreSimulator Flakiness</h4>
+                        <p>When contributors execute User Interface (UI) tests (via XCUITest) from the command line, they frequently encounter environmental instability. A common manifestation of this instability is the Pseudo Terminal Setup Error or a failure stating that the system "Failed to install or launch the test runner." This phenomenon is almost invariably caused by a resource lock conflict: the Xcode graphical application retains a background connection to the CoreSimulator service, while the CLI attempts to simultaneously manipulate the same service.</p>
+                        <p>To resolve this transient flakiness, contributors must be instructed to terminate the Xcode GUI entirely before initiating command-line tests. If the testing service remains unresponsive, a forced restart of the underlying daemon is required:</p>
+                        <pre><code class="language-bash">osascript -e 'quit app "Xcode"'
+killall com.apple.CoreSimulator.CoreSimulatorService</code></pre>
+
+                        <h4>3.3 Parsing the XCResult Bundle</h4>
+                        <p>Upon completion of the test suite, <code>xcodebuild</code> aggregates all test outputs, code coverage data, and diagnostic logs into an opaque binary archive with the <code>.xcresult</code> extension, designated by the <code>-resultBundlePath</code> parameter. Because CLI tests executed with the <code>-quiet</code> flag offer minimal console output, developers and automated CI/CD pipelines require a programmatic method to extract actionable data from this archive.</p>
+                        
+                        <pre><code class="language-bash"># Extract a high-level human-readable summary of the test execution
+xcrun xcresulttool get test-results summary \
+  --path "./TestResults.xcresult"
+
+# Export detailed JSON data for programmatic ingestion and failure analysis
+xcrun xcresulttool get \
+  --format json \
+  --path "./TestResults.xcresult" > test_report.json</code></pre>
+                        <p>The resulting JSON structure contains deeply nested arrays detailing execution counts, file paths, and specific line numbers for code coverage and assertion failures. Advanced contributors can utilize JSON parsing utilities such as <code>jq</code> to traverse the <code>logRef</code> and <code>testsRef</code> mappings, extracting precise standard output and standard error logs associated with failing test cases.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-4">
+                    <div class="section-marker">04</div>
+                    <div class="section-content">
+                        <p class="mini-label">04 / Governance</p>
+                        <h3>4. Code Quality Governance: SwiftLint and Swift 6 Concurrency</h3>
+                        <p>To protect the architectural integrity of the repository, the open-source pipeline must defensively enforce coding standards and leverage the most advanced language safety features available. This dual approach relies on deterministic linting and strict concurrency enforcement.</p>
+
+                        <h4>4.1 Automating Formatting with SwiftLint</h4>
+                        <p>In a decentralized development environment, subjective debates regarding code formatting, whitespace, and stylistic conventions consume valuable review time. The integration of SwiftLint provides an objective, automated mechanism for enforcing the project's coding style. Rather than requiring contributors to manually install the SwiftLint binary globally via Homebrew—which introduces versioning discrepancies across different developer machines—the tool should be embedded directly into the project architecture as a Swift Package Manager Build Tool Plugin.</p>
+                        <p>By defining SwiftLint as a plugin dependency within the Package.swift manifest, the linter executes automatically during the <code>xcodebuild</code> compilation phase. The ruleset is governed by a <code>.swiftlint.yml</code> configuration file situated at the repository's root, ensuring absolute consistency regardless of the contributor's local setup.</p>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Configuration Directive</th>
+                                    <th>Purpose within the Utility App</th>
+                                    <th>Impact on Contributor Workflow</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>disabled_rules</strong></td>
+                                    <td>Suppresses rules that conflict with the project's specific architectural style.</td>
+                                    <td>Reduces false positives, preventing contributors from being blocked by overly aggressive linting.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>opt_in_rules</strong></td>
+                                    <td>Enables stringent rules, such as <code>missing_docs</code> or <code>empty_count</code>.</td>
+                                    <td>Enforces high documentation standards and modern Swift idioms automatically.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>force_cast</strong></td>
+                                    <td>Configured to emit warnings or errors when developers utilize the <code>as!</code> operator.</td>
+                                    <td>Prevents runtime crashes caused by reckless type casting, forcing contributors to use safe unwrapping.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>analyzer_rules</strong></td>
+                                    <td>Triggers deeper AST (Abstract Syntax Tree) analysis, such as detecting <code>unused_import</code> statements.</td>
+                                    <td>Keeps the codebase lean and prevents the accumulation of technical debt.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4>4.2 The Swift 6 Concurrency Paradigm</h4>
+                        <p>The transition to the Swift 6 compiler represents one of the most profound architectural shifts in the history of Apple ecosystem development. Swift 6 enforces strict concurrency checking by default, elevating data races from unpredictable runtime crashes to deterministic compile-time errors. For an open-source macOS desktop utility, where the user interface is strictly bound to the main thread, the enforcement of data-race safety requires contributors to adopt a completely inverted mental model.</p>
+                        <p>Historically, in Swift 5.x, code was assumed to be non-isolated, requiring developers to defensively annotate UI components to ensure they executed on the main thread. In Swift 6.2 and beyond, under the <code>SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor</code> directive, the compiler assumes that code within a UI-centric module operates on the main actor unless explicitly designated otherwise. Contributors must understand how to navigate this strict isolation environment.</p>
+                        <ul>
+                            <li><strong>@MainActor Integration:</strong> ViewModels, application state singletons, and all UI-binding logic must be explicitly or implicitly isolated to the main actor. Contributors attempting to mutate this state from global concurrent queues will trigger immediate compiler errors.</li>
+                            <li><strong>The Sendable Protocol:</strong> Types that traverse isolation boundaries—such as a network response model moving from a background URLSession task back to the @MainActor—must conform to the Sendable protocol. This guarantees that the type contains no mutable shared state.</li>
+                            <li><strong>sending Parameters:</strong> For non-Sendable state that must be transferred between isolation domains, contributors must utilize the <code>sending</code> keyword. This transfers the specific region of memory safely without triggering concurrency violations, proving to the compiler that the original context no longer retains a reference to the mutable state.</li>
+                            <li><strong>Typed Throws:</strong> Swift 6 introduces the ability to specify the exact error type a function can throw (e.g., <code>throws(NetworkError)</code>). This enables exhaustive, compile-time verified error handling, eliminating the ambiguity of generic catch blocks and significantly improving the reliability of the utility's error recovery mechanisms.</li>
+                        </ul>
+
+                        <div class="mermaid">
+graph LR
+    BG["Background Task (URLSession)"] -->|"Fetch JSON Data"| BG
+    BG -->|"Decode to Sendable Struct"| Model["Sendable Data Model"]
+    Model -.->|"Await transfer"| Main["@MainActor (ViewModel)"]
+    Main -->|"Mutate UI State safely"| Main
+                        </div>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-5">
+                    <div class="section-marker">05</div>
+                    <div class="section-content">
+                        <p class="mini-label">05 / Security</p>
+                        <h3>5. Demystifying macOS Security: Sandboxing, Entitlements, and TCC</h3>
+                        <p>macOS development is heavily governed by strict security boundaries that web and backend developers rarely encounter. Understanding the App Sandbox and the Transparency, Consent, and Control (TCC) framework is critical for any contributor attempting to modify a utility application that interacts with the underlying operating system.</p>
+
+                        <h4>5.1 Navigating Entitlements and the App Sandbox</h4>
+                        <p>Entitlements are cryptographic key-value pairs embedded within the application's signature that grant explicit permission to bypass specific sandbox restrictions. A native macOS utility app heavily relies on these entitlements to function. For example, an entitlement such as <code>com.apple.security.files.user-selected.read-write</code> allows the sandboxed application to interact with files the user selects via a standard NSOpenPanel, while <code>com.apple.security.network.client</code> is mandatory for initiating outbound HTTP requests.</p>
+                        <p>When external contributors build the application locally using the <code>CODE_SIGNING_ALLOWED=NO</code> flag, they are generating an ad-hoc, unsigned binary. The operating system handles unsigned binaries differently than properly signed release builds. While basic entitlements may function, advanced entitlements—such as those required for iCloud Key-Value Storage (<code>com.apple.developer.ubiquity-kvstore-identifier</code>) or App Groups for inter-process communication—will silently fail to bind because they lack the cryptographic Team ID prefix. Contributors must be educated on this limitation to prevent them from spending hours debugging "broken" features that are merely suffering from missing cryptographic validation.</p>
+
+                        <h4>5.2 TCC and Privilege Escalation Debugging</h4>
+                        <p>Utilities that require deep system integration, such as accessing the Accessibility API to intercept keystrokes or the ScreenCapture API, must request permission via the macOS TCC subsystem. A critical issue arises during local development: TCC associates a user's permission grant with the application's bundle identifier and its specific code signature.</p>
+                        <p>Because ad-hoc signatures generate a unique cryptographic identity upon every compilation, the macOS TCC database frequently categorizes consecutive builds of the same app as entirely new, unrecognized entities. Consequently, the application loses its previously granted permissions, and the system may fail to prompt the user to re-grant them, leading to silently failing APIs.</p>
+                        <p>Contributors must utilize the command-line <code>tccutil</code> to aggressively purge the corrupt database entries for the specific utility, forcing the macOS security daemon to regenerate the permission prompts upon the next application launch:</p>
+
+                        <pre><code class="language-bash"># Reset Accessibility permissions for the specific bundle identifier
+sudo tccutil reset Accessibility com.opensource.macutility
+# Reset Screen Capture permissions to force a new prompt
+sudo tccutil reset ScreenCapture com.opensource.macutility</code></pre>
+
+                        <h4>5.3 Verifying Cryptographic Signatures</h4>
+                        <p>If a contributor is tasked with debugging an issue related to Gatekeeper, XProtect, or an entitlement failure, they must possess the ability to manually inspect the binary's signature using the built-in <code>codesign</code> CLI utility. This tool allows the developer to interrogate the compiled .app bundle, verify the Distinguished Encoding Rules (DER) format, and dump the raw XML entitlements embedded within the Mach-O binary.</p>
+                        
+                        <pre><code class="language-bash"># View detailed signature metadata, including the Team ID and Authority chain
+codesign -dv --verbose=4 .build/DerivedData/Build/Products/Debug/MacUtility.app
+
+# Extract and display the raw XML entitlements bound to the binary
+codesign -d --entitlements :- .build/DerivedData/Build/Products/Debug/MacUtility.app</code></pre>
+                        <p>By utilizing <code>codesign</code>, developers can definitively prove whether the build engine successfully embedded the expected entitlements into the executable payload.</p>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-6">
+                    <div class="section-marker">06</div>
+                    <div class="section-content">
+                        <p class="mini-label">06 / Documentation</p>
+                        <h3>6. Documentation as Code: The DocC Pipeline</h3>
+                        <p>To ensure the long-term sustainability of the open-source project, the architecture of the utility app must be inherently self-documenting. Apple's Documentation Compiler (DocC) provides a powerful mechanism for generating rich, interactive API references and tutorials directly from the Swift source code.</p>
+
+                        <h4>6.1 Generating Interactive Documentation</h4>
+                        <p>DocC leverages Markdown-formatted comments (denoted by the <code>///</code> syntax) placed immediately preceding public declarations. By establishing a strict requirement that all public and open symbols must include DocC comments, the project guarantees that the external contributor guide remains perfectly synchronized with the underlying codebase.</p>
+                        <p>Contributors can compile and verify the documentation locally via the command line to ensure their API explanations are rendered correctly. The <code>xcodebuild docbuild</code> command analyzes the source files and compiles the documentation into a specialized <code>.doccarchive</code> bundle:</p>
+                        
+                        <pre><code class="language-bash">xcodebuild docbuild \
+  -scheme "MacOSUtilityApp" \
+  -destination 'platform=macOS' \
+  -derivedDataPath ./docs_build</code></pre>
+
+                        <h4>6.2 Automating Static Web Deployment</h4>
+                        <p>To maximize accessibility, the documentation must be hosted publicly. The CI/CD pipeline should be configured to automatically intercept the generated <code>.doccarchive</code> and convert it into a standard HTML/CSS static website suitable for hosting on platforms such as GitHub Pages.</p>
+                        <p>This transformation is achieved by invoking the standalone <code>docc</code> executable and applying the <code>transform-for-static-hosting</code> flag. The pipeline must specify the correct <code>--hosting-base-path</code> to ensure that relative links and assets resolve correctly when deployed to a subdirectory on the hosting provider.</p>
+
+                        <div class="mermaid">
+graph LR
+    Source["Swift Source Code + /// Comments"] --> Compiler["xcodebuild docbuild"]
+    Compiler --> Archive[".doccarchive Bundle"]
+    Archive --> Transform["docc process-archive"]
+    Transform --> Static["Static HTML/CSS Files"]
+    Static --> Host["GitHub Pages Hosting"]
+                        </div>
+
+                        <pre><code class="language-bash"># Locate the active DocC executable within the Xcode toolchain
+DOCC_EXEC=$(xcrun --find docc)
+
+# Transform the compiled archive into a deployable static website
+$DOCC_EXEC process-archive transform-for-static-hosting \
+  ./docs_build/Build/Products/Debug/MacOSUtilityApp.doccarchive \
+  --hosting-base-path "MacOSUtilityApp" \
+  --output-path ./docs</code></pre>
+                    </div>
+                </section>
+
+                <section class="prose-section" id="section-7">
+                    <div class="section-marker">07</div>
+                    <div class="section-content">
+                        <p class="mini-label">07 / Branching Strategy</p>
+                        <h3>7. Architecture and Branching Diagram</h3>
+                        <p>To visually orient contributors, the repository utilizes a Trunk-Based Development model supplemented by short-lived feature branches. This strategy ensures the main branch remains stable while facilitating parallel development.</p>
+
+                        <div class="mermaid">
+gitGraph
+    commit id: "Initialize Project"
+    commit id: "Configure Headless CI/CD"
+    branch feature/add-swiftlint
+    checkout feature/add-swiftlint
+    commit id: "Integrate SPM Build Tool Plugin"
+    commit id: "Define .swiftlint.yml Ruleset"
+    checkout main
+    merge feature/add-swiftlint
+    branch fix/memory-leak
+    checkout fix/memory-leak
+    commit id: "Resolve Swift 6 MainActor Violations"
+    checkout main
+    merge fix/memory-leak
+    commit id: "Deploy Release v1.0.0" tag: "v1.0.0"
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </article>
+    </main>
+    <script src="script.js"></script>
+    <script>
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.style.position = 'relative';
+            pre.style.overflowX = 'auto';
+            const btn = document.createElement('button');
+            btn.innerText = 'Copy';
+            btn.style.position = 'absolute';
+            btn.style.top = '10px';
+            btn.style.right = '10px';
+            btn.style.padding = '4px 8px';
+            btn.style.cursor = 'pointer';
+            btn.style.background = '#333';
+            btn.style.color = '#fff';
+            btn.style.border = 'none';
+            btn.style.borderRadius = '4px';
+            btn.style.fontSize = '12px';
+            btn.style.zIndex = '10';
+            btn.onclick = () => {
+                const code = pre.querySelector('code').innerText;
+                navigator.clipboard.writeText(code);
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            };
+            pre.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
