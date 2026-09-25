@@ -26,28 +26,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Architectural Foundations</strong></a>
-                <a href="#section-2"><span>02</span><strong>Hardware Bottlenecks</strong></a>
-                <a href="#section-3"><span>03</span><strong>Concurrency & GIL</strong></a>
-                <a href="#section-4"><span>04</span><strong>The Two-Stage Paradigm</strong></a>
-                <a href="#section-5"><span>05</span><strong>Comparative Analysis</strong></a>
-                <a href="#section-6"><span>06</span><strong>Environment Setup</strong></a>
-                <a href="#section-7"><span>07</span><strong>Core Implementation</strong></a>
-                <a href="#section-8"><span>08</span><strong>Execution Flow</strong></a>
-                <a href="#section-9"><span>09</span><strong>Extracting Data</strong></a>
-                <a href="#section-10"><span>10</span><strong>Hardware Tuning</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Developer Tutorials / Computer Vision</span>
-                    <span>Audience / Edge AI Engineers</span>
-                    <span>Status / Published</span>
+                    <span><span class="dot"></span> Developer Tutorials / Computer Vision</span>
+                    <span><span class="dot"></span> Audience / Edge AI Engineers</span>
+                    <span><span class="dot"></span> Status / Published</span>
                 </div>
                 <h2>The Performance-Tuned Pipeline Tutorial</h2>
                 <p class="article-subtitle">Building a Real-Time Computer Vision Tracking Framework using OpenCV, MediaPipe, and Multi-threading.</p>
@@ -55,9 +39,7 @@
 
             <div class="article-body">
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Foundation</p>
                         <h3>The Architectural Foundations of Real-Time Perception</h3>
                         <p>The deployment of real-time computer vision applications has fundamentally transformed human-computer interaction, shifting from computationally expensive cloud-based processing to highly optimized on-device edge AI. Whether engineers are tasked with developing a robust automated proctoring framework to monitor student behavior with high precision or constructing a sub-millisecond gesture-recognition engine for interactive browser games, the foundational requirements remain unequivocally identical. These systems demand exceptional predictive accuracy, zero-lag visual feedback, and seamless integration without stalling the main application execution thread.</p>
                         <p>Constructing such an advanced pipeline necessitates significantly more than merely chaining together pre-trained models in a sequential loop. Standard, synchronous computer vision implementations inevitably encounter critical performance bottlenecks. These limitations range from physical hardware constraints, such as USB bus bandwidth contention and generic driver buffer bloat, to the software architectural limitations imposed by the Global Interpreter Lock (GIL) inherent in the Python runtime environment.</p>
@@ -66,9 +48,7 @@
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Hardware</p>
                         <h3>The USB Bandwidth and UVC Protocol Bottleneck</h3>
                         <p>Modern computer vision systems must operate under strict, deterministic response time constraints. When an application captures video data at standard rates of 30 frames per second (FPS), a new frame arrives from the hardware sensor approximately every 33 milliseconds. However, complex neural network inference operating on a standard CPU can easily consume 90 to 100 milliseconds per frame. If the software architecture relies on a standard synchronous callback structure, this timing discrepancy causes the application's message queue to rapidly fill with unprocessed frames.</p>
                         <p>Generic technical guides frequently ignore the underlying hardware issues that cause USB cameras to struggle with lag in real-time applications. The physical USB connection forms the foundation of low-latency performance; without addressing this, no software-level threading architecture will resolve persistent lag. USB operates as a shared bus topology, meaning multiple peripherals compete for the same finite bandwidth pool. The legacy USB 2.0 standard provides a maximum theoretical bandwidth of 480 Mbps, which is fundamentally insufficient for high-frame-rate, high-resolution uncompressed video, forcing the host system to aggressively buffer frames and delay transmission.</p>
@@ -77,9 +57,7 @@
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Concurrency</p>
                         <h3>Bypassing the Global Interpreter Lock (GIL) Constraints</h3>
                         <p>Implementing a robust solution in Python introduces significant concurrency challenges. Python's Global Interpreter Lock (GIL) fundamentally limits single-process thread parallelism, preventing multiple native threads from executing Python bytecodes simultaneously. While the GIL poses a massive bottleneck for pure computational workloads, it is less restrictive for heavily I/O-bound operations or when computation is offloaded to highly optimized C++ backends, such as OpenCV and MediaPipe.</p>
                         <p>To build a genuinely performance-tuned pipeline, the architecture must implement a multi-threaded producer-consumer model that carefully navigates the GIL. The framework decouples data production from consumption by launching a dedicated background thread that continuously polls the hardware camera for new frames. A separate thread, managed entirely by the MediaPipe C++ backend, handles the matrix multiplication required for inference. A thread-safe queue connects these domains. By strictly limiting this queue's maximum size to a single frame, the system ensures that if the inference engine is saturated, older frames are systematically discarded—a process known as frame decimation—rather than accumulated.</p>
@@ -87,9 +65,7 @@
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Paradigm</p>
                         <h3>The Two-Stage Detection and Tracking Paradigm</h3>
                         <p>What definitively separates high-performance tracking frameworks like MediaPipe from traditional object detection systems is the strategic architectural decision to bifurcate detection from tracking. Most conventional systems execute a computationally heavy detection algorithm on every single sequential frame.</p>
                         <ul>
@@ -101,9 +77,7 @@
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Models</p>
                         <h3>Comparative Analysis of Vision Models</h3>
                         <p>When plotting Frames Per Second (FPS) against mean Average Precision (mAP), models cluster into distinct categories reflecting essential trade-offs.</p>
 
@@ -147,9 +121,7 @@
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / Environment</p>
                         <h3>Environment Setup and Dependency Matrix</h3>
                         <p>Deploying an optimal real-time perception pipeline requires exacting dependency management to ensure complete compatibility between hardware delegates (such as the XNNPACK CPU delegate) and the Python execution environment.</p>
 
@@ -192,9 +164,7 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Implementation</p>
                         <h3>The Complete Deliverable: Performance-Tuned Pipeline Architecture</h3>
                         <p>The following sections provide the complete, production-ready source code. It is separated into highly modular Python classes to strictly enforce the separation of concerns and maintain clean architecture paradigms.</p>
 
@@ -368,9 +338,7 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
                 </section>
 
                 <section class="prose-section" id="section-8">
-                    <div class="section-marker">08</div>
                     <div class="section-content">
-                        <p class="mini-label">08 / Diagram</p>
                         <h3>Architectural Execution Flow</h3>
                         <p>To fully comprehend the highly concurrent nature of this architecture, consider the following data flow representation of the pipeline in action. It visually demonstrates how the framework systematically prevents any single component from starving or blocking another.</p>
                         
@@ -414,9 +382,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-9">
-                    <div class="section-marker">09</div>
                     <div class="section-content">
-                        <p class="mini-label">09 / Data</p>
                         <h3>Deep Dive: Extracting and Interpreting Coordinate Data</h3>
                         <p>The true value of a tracking pipeline lies not merely in rendering bounding boxes or visual overlays, but in the actionable, mathematical data extracted from the neural network.</p>
                         
@@ -455,9 +421,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-10">
-                    <div class="section-marker">10</div>
                     <div class="section-content">
-                        <p class="mini-label">10 / Optimization</p>
                         <h3>Advanced Performance Optimization and Hardware Strategy</h3>
                         <p>While the multi-threaded architecture inherently solves basic I/O and GIL bottlenecks, pushing the framework to perform accurately and rapidly on highly constrained edge devices requires deeper configuration.</p>
                         
@@ -499,6 +463,21 @@ graph LR
 
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Architectural Foundations</a>
+                <a href="#section-2">Hardware Bottlenecks</a>
+                <a href="#section-3">Concurrency & GIL</a>
+                <a href="#section-4">The Two-Stage Paradigm</a>
+                <a href="#section-5">Comparative Analysis</a>
+                <a href="#section-6">Environment Setup</a>
+                <a href="#section-7">Core Implementation</a>
+                <a href="#section-8">Execution Flow</a>
+                <a href="#section-9">Extracting Data</a>
+                <a href="#section-10">Hardware Tuning</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>

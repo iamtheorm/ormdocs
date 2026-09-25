@@ -26,25 +26,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Introduction</strong></a>
-                <a href="#section-2"><span>02</span><strong>Architecture & Network</strong></a>
-                <a href="#section-3"><span>03</span><strong>IoT Ingestion</strong></a>
-                <a href="#section-4"><span>04</span><strong>IAM & Security</strong></a>
-                <a href="#section-5"><span>05</span><strong>Container Deployment</strong></a>
-                <a href="#section-6"><span>06</span><strong>Database Migrations</strong></a>
-                <a href="#section-7"><span>07</span><strong>Disaster Recovery</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Operations Manual / Infrastructure</span>
-                    <span>Audience / SRE & DevOps</span>
-                    <span>Status / Active Runbook</span>
+                    <span><span class="dot"></span> Operations Manual / Infrastructure</span>
+                    <span><span class="dot"></span> Audience / SRE & DevOps</span>
+                    <span><span class="dot"></span> Status / Active Runbook</span>
                 </div>
                 <h2>The Cloud Infrastructure Runbook (AWS)</h2>
                 <p class="article-subtitle">Highly Available IoT Energy Optimization Platform</p>
@@ -52,9 +39,7 @@
 
             <div class="article-body">
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Overview</p>
                         <h3>Introduction to the Operational Blueprint</h3>
                         <p>Operating a highly available, scalable internet of things (IoT) energy optimization platform on Amazon Web Services (AWS) requires strict adherence to the AWS Well-Architected Framework. The deployment of an enterprise-grade IoT platform—responsible for ingesting millions of telemetry records from distributed energy assets, processing them in real-time, and executing automated control algorithms—demands an architecture that prioritizes fault isolation, data durability, and zero-downtime continuous integration and continuous deployment (CI/CD).</p>
                         <p>This operations manual serves as the definitive runbook for Site Reliability Engineering (SRE) and DevOps teams. A standard runbook must provide actionable, step-by-step operational guidance for handling recurring tasks, alert remediation, and deployment procedures, ensuring that engineers have the necessary context to prevent destructive actions without being overwhelmed by extraneous theory. To satisfy these requirements, this document exhaustively details the reference architecture, network topology, minimum-privilege security guardrails, edge-device resilience strategies, database migration methodologies, and explicit deployment rollback procedures.</p>
@@ -63,9 +48,7 @@
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Topology</p>
                         <h3>Reference Architecture and Network Topology</h3>
                         <p>The foundation of a resilient cloud environment is a rigorously partitioned Virtual Private Cloud (VPC) topology that enforces cross-Availability Zone (AZ) high availability and strict ingress/egress controls. The platform utilizes a multi-AZ deployment strategy across a minimum of three isolated Availability Zones to guarantee fault tolerance and 99.999999999% durability for object storage systems.</p>
                         
@@ -128,9 +111,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Ingestion</p>
                         <h3>IoT Telemetry Ingestion and Edge Connectivity</h3>
                         <p>Ingesting millions of small payload records (typically under 4 KB) per minute requires a pipeline capable of absorbing severe backpressure and sudden traffic spikes. The architecture segregates command-and-control operations from read-only telemetry by enforcing strict MQTT topic namespaces. Telemetry data is published to prefixes such as <code>data/device/sensortype</code>, while control plane operations use the <code>command/</code> prefix.</p>
 
@@ -213,9 +194,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Security</p>
                         <h3>Identity and Access Management (IAM): Minimum Privilege Guardrails</h3>
                         <p>Ensuring a highly secure environment requires layering network perimeter controls with strict, identity-based permissions boundaries. The operations team is responsible for ensuring that any access granted—whether to human operators or machine identities—adheres strictly to the principle of least privilege.</p>
 
@@ -300,9 +279,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Containers</p>
                         <h3>Application Deployment and Container Orchestration</h3>
                         <p>The core API layers of the energy optimization platform are executed as stateless, containerized applications managed by Amazon Elastic Container Service (ECS) utilizing the AWS Fargate serverless compute engine. Fargate abstracts away the underlying EC2 instances, offloading operating system patching and host security to AWS.</p>
 
@@ -391,9 +368,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / DB Migrations</p>
                         <h3>Zero-Downtime Database Schema Migrations</h3>
                         <p>Modifying relational database schemas in production is historically the highest-risk operation in software engineering. A poorly executed migration can lock tables entirely, backing up incoming API requests, exhausting database connection pools, and effectively halting the energy optimization platform.</p>
                         
@@ -450,9 +425,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Recovery</p>
                         <h3>Disaster Recovery and Data Resilience</h3>
                         <p>Disaster Recovery (DR) in the AWS Cloud is quantified through two overarching business metrics: the Recovery Time Objective (RTO) and the Recovery Point Objective (RPO).</p>
                         <ul>
@@ -466,6 +439,18 @@ graph LR
                 </section>
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Introduction</a>
+                <a href="#section-2">Architecture & Network</a>
+                <a href="#section-3">IoT Ingestion</a>
+                <a href="#section-4">IAM & Security</a>
+                <a href="#section-5">Container Deployment</a>
+                <a href="#section-6">Database Migrations</a>
+                <a href="#section-7">Disaster Recovery</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>

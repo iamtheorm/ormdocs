@@ -26,25 +26,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Architectural Foundation</strong></a>
-                <a href="#section-2"><span>02</span><strong>Developer Experience</strong></a>
-                <a href="#section-3"><span>03</span><strong>Security & Auth</strong></a>
-                <a href="#section-4"><span>04</span><strong>Database Architecture</strong></a>
-                <a href="#section-5"><span>05</span><strong>Error Handling</strong></a>
-                <a href="#section-6"><span>06</span><strong>Endpoint Specifications</strong></a>
-                <a href="#section-7"><span>07</span><strong>Implementation</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Engineering Guide / Backend APIs</span>
-                    <span>Audience / Backend Engineers</span>
-                    <span>Status / Production</span>
+                    <span><span class="dot"></span> Engineering Guide / Backend APIs</span>
+                    <span><span class="dot"></span> Audience / Backend Engineers</span>
+                    <span><span class="dot"></span> Status / Production</span>
                 </div>
                 <h2>Interactive API Developer Portal</h2>
                 <p class="article-subtitle">Technical Specification and Architectural Reference for FastAPI, PostgreSQL, and Redis.</p>
@@ -52,9 +39,7 @@
 
             <div class="article-body">
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Ecosystem</p>
                         <h3>Architectural Foundation and System Ecosystem</h3>
                         <p>The design and publication of a developer-facing application programming interface (API) for backend services handling complex queries, user data management, and high-latency artificial intelligence (AI) inference requests require a robust architectural foundation. Modern API consumers expect an interactive, contract-first integration experience characterized by exact JSON schemas, diverse code samples, and deterministic error handling. This technical specification details the construction of a complete, interactive API developer portal leveraging FastAPI for asynchronous routing, PostgreSQL for persistent data and vector storage, and Redis for distributed rate limiting and state management.</p>
                         
@@ -88,9 +73,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / OpenAPI</p>
                         <h3>The Developer Experience: OpenAPI 3.1 and Three-Pane Rendering</h3>
                         <p>The ultimate deliverable of this system is the interactive developer portal. A premium developer experience demands a highly readable specification, which is best achieved through a three-pane layout rather than traditional top-down renderers.</p>
 
@@ -142,9 +125,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Security</p>
                         <h3>Security, Authentication, and High-Performance Rate Limiting</h3>
                         <p>Securing a developer-facing API requires a robust, stateless authentication mechanism coupled with aggressive protections against abuse. For this platform, JSON Web Tokens (JWT) are employed as Bearer tokens, transmitted via the standard Authorization header.</p>
 
@@ -187,9 +168,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Database</p>
                         <h3>High-Concurrency Database Architecture</h3>
                         <p>The backend utilizes PostgreSQL not only as a traditional relational store for user data but also as a high-dimensional vector database via the <code>pgvector</code> extension, enabling semantic search capabilities.</p>
 
@@ -236,9 +215,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Errors</p>
                         <h3>Standardized Error Handling (RFC 7807)</h3>
                         <p>A deterministic API developer portal must present error responses that are mathematically predictable. Returning ad-hoc string messages prevents client applications from programmatically resolving failures. To achieve total consistency, the API implements RFC 7807 (Problem Details for HTTP APIs).</p>
                         <p>RFC 7807 defines a canonical JSON schema (<code>application/problem+json</code>) designed to inform clients of both the high-level error class and the fine-grained details of the failure. The schema requires the following standard members:</p>
@@ -332,9 +309,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / Endpoints</p>
                         <h3>Exhaustive Endpoint Specifications</h3>
                         <p>The following section constitutes the developer-facing API reference, documenting the exact CRUD operations necessary to interact with the backend services. All endpoints stipulate the presence of the <code>Authorization: Bearer &lt;token&gt;</code> header unless explicitly marked otherwise.</p>
 
@@ -445,9 +420,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Implementation</p>
                         <h3>The Deliverable: OpenAPI 3.1 Configuration Generation</h3>
                         <p>To instantiate this comprehensive developer portal, the following Python configuration demonstrates the exact FastAPI implementation required. This code bridges all theoretical concepts discussed—including the lifespan context manager, Pydantic V2 payload generation, RFC 7807 error handling middleware, and the injection of the <code>x-codeSamples</code> vendor extension to force the three-pane layout rendering in Scalar or ReDoc.</p>
 
@@ -601,6 +574,18 @@ app.openapi = custom_openapi</code></pre>
                 </section>
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Architectural Foundation</a>
+                <a href="#section-2">Developer Experience</a>
+                <a href="#section-3">Security & Auth</a>
+                <a href="#section-4">Database Architecture</a>
+                <a href="#section-5">Error Handling</a>
+                <a href="#section-6">Endpoint Specifications</a>
+                <a href="#section-7">Implementation</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>

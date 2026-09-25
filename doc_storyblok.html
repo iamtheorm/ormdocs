@@ -26,33 +26,22 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Architecture Overview</strong></a>
-                <a href="#section-2"><span>02</span><strong>Prerequisites</strong></a>
-                <a href="#section-3"><span>03</span><strong>Step-by-step Execution</strong></a>
-                <a href="#section-4"><span>04</span><strong>Live Demo</strong></a>
-                <a href="#section-5"><span>05</span><strong>Next Steps</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Engineering Guide / Frontend Architecture</span>
-                    <span>Audience / Frontend Engineers</span>
-                    <span>Status / Published</span>
+                    <span><span class="dot"></span> ENGINEERING GUIDE / FRONTEND ARCHITECTURE</span>
+                    <span><span class="dot"></span> AUDIENCE / FRONTEND ENGINEERS</span>
+                    <span><span class="dot"></span> STATUS / PUBLISHED</span>
                 </div>
                 <h2>Architecting Global Header and Footer Components in Storyblok and Next.js</h2>
                 <p class="article-subtitle">Building scalable and dynamic site-wide navigation systems using a headless architecture.</p>
             </header>
 
+
+
             <div class="article-body">
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Overview</p>
                         <h3>Architecture overview</h3>
                         <p>Navigating global states is one of the most common hurdles when migrating to a headless architecture. In a traditional content management system (CMS), headers and footers are built directly into the site's theme. Storyblok, however, is a headless CMS—it acts as a database for content and doesn't build the webpage or dictate the layout.</p>
                         <p>Because global components—such as headers, complex mega-menus, and footers—appear on every single page, they cannot be tied to a standard home or about page entry. Model this data using a dedicated global settings story to act as the single source of truth. This structure guarantees that the frontend makes efficient application programming interface (API) calls on every page load, and it provides a flexible, intuitive visual editing experience for the marketing team.</p>
@@ -81,9 +70,7 @@ graph TD
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Setup</p>
                         <h3>Prerequisites and setup</h3>
                         <p>Before proceeding with the content model and code implementation, ensure your development environment meets the following requirements:</p>
                         <ul>
@@ -100,9 +87,7 @@ graph TD
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Implementation</p>
                         <h3>Step-by-step execution</h3>
                         
                         <h4>1. Configure the visual editor</h4>
@@ -403,9 +388,7 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Result</p>
                         <h3>Live demo</h3>
                         <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
                             📸 SCREENSHOT PLACEHOLDER: Live demo showing the final rendered navigation bar with the dropdown menu open, demonstrating the "Products" sub-menu items on the Next.js frontend.
@@ -414,9 +397,7 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Future</p>
                         <h3>Next steps</h3>
                         <p>By shifting the architectural approach away from fragmented reference components and toward a single nested settings object, you construct a highly scalable global navigation system. Integrating this content model with the Next.js App Router caching primitives ensures the application remains highly performant, while <code>storyblokEditable</code> empowers the marketing team to orchestrate complex layouts directly inside the Visual Editor.</p>
                         <p>To scale this architecture for enterprise requirements, expand the fetching logic in <code>layout.tsx</code> to accept localization parameters. By passing a specific locale string to the Storyblok API call, you enable field-level translations, allowing a single global story to deliver dynamically translated mega-menus across international deployments.</p>
@@ -424,6 +405,16 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
                 </section>
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Architecture Overview</a>
+                <a href="#section-2">Prerequisites</a>
+                <a href="#section-3">Step-by-step Execution</a>
+                <a href="#section-4">Live Demo</a>
+                <a href="#section-5">Next Steps</a>
+            </nav>
+        </aside>
     </main>
 
     <footer class="site-footer">

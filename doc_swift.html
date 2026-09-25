@@ -28,25 +28,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Baseline Architecture</strong></a>
-                <a href="#section-2"><span>02</span><strong>Code-Signing & Headless</strong></a>
-                <a href="#section-3"><span>03</span><strong>Test Automation</strong></a>
-                <a href="#section-4"><span>04</span><strong>Quality & Concurrency</strong></a>
-                <a href="#section-5"><span>05</span><strong>Security & TCC</strong></a>
-                <a href="#section-6"><span>06</span><strong>DocC Pipeline</strong></a>
-                <a href="#section-7"><span>07</span><strong>Branching Strategy</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Developer Relations / Swift</span>
-                    <span>Audience / Open Source Contributors</span>
-                    <span>Status / Published Template</span>
+                    <span><span class="dot"></span> Developer Relations / Swift</span>
+                    <span><span class="dot"></span> Audience / Open Source Contributors</span>
+                    <span><span class="dot"></span> Status / Published Template</span>
                 </div>
                 <h2>Architecting the macOS Open-Source Contributor Guide</h2>
                 <p class="article-subtitle">A Comprehensive Framework for Native Swift Desktop Utilities</p>
@@ -61,9 +48,7 @@
                 </section>
 
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Baseline</p>
                         <h3>1. Establishing the Baseline: Prerequisites and Toolchain Architecture</h3>
                         <p>The foundation of a reliable open-source pipeline is the establishment of a standardized, deterministic baseline environment. To prevent the classic "it works on my machine" anti-pattern, the project must explicitly define its dependencies, target operating systems, and toolchain configurations, minimizing the surface area for environment-specific discrepancies.</p>
                         
@@ -109,9 +94,7 @@
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Headless Builds</p>
                         <h3>2. The Code-Signing Paradox and Headless Compilation</h3>
                         <p>The most significant architectural hurdle for external contributors interacting with Apple platforms is the code-signing requirement. By default, Xcode projects are configured to sign the application binary using the maintainer's specific Apple Developer Team ID and provisioning profiles. When an external contributor clones the repository and attempts a standard build, the build engine queries the local keychain for the maintainer's cryptographic identity, fails to locate it, and abruptly halts the compilation process.</p>
                         
@@ -177,9 +160,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Test Automation</p>
                         <h3>3. Test Automation and Diagnostic Artifact Extraction</h3>
                         <p>A comprehensive automated testing suite is the primary mechanism for ensuring the stability of an open-source project. However, executing macOS tests via the command line introduces a unique set of challenges regarding code-signing, simulator management, and result parsing.</p>
                         
@@ -216,9 +197,7 @@ xcrun xcresulttool get \
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Governance</p>
                         <h3>4. Code Quality Governance: SwiftLint and Swift 6 Concurrency</h3>
                         <p>To protect the architectural integrity of the repository, the open-source pipeline must defensively enforce coding standards and leverage the most advanced language safety features available. This dual approach relies on deterministic linting and strict concurrency enforcement.</p>
 
@@ -279,9 +258,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Security</p>
                         <h3>5. Demystifying macOS Security: Sandboxing, Entitlements, and TCC</h3>
                         <p>macOS development is heavily governed by strict security boundaries that web and backend developers rarely encounter. Understanding the App Sandbox and the Transparency, Consent, and Control (TCC) framework is critical for any contributor attempting to modify a utility application that interacts with the underlying operating system.</p>
 
@@ -312,9 +289,7 @@ codesign -d --entitlements :- .build/DerivedData/Build/Products/Debug/MacUtility
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / Documentation</p>
                         <h3>6. Documentation as Code: The DocC Pipeline</h3>
                         <p>To ensure the long-term sustainability of the open-source project, the architecture of the utility app must be inherently self-documenting. Apple's Documentation Compiler (DocC) provides a powerful mechanism for generating rich, interactive API references and tutorials directly from the Swift source code.</p>
 
@@ -352,9 +327,7 @@ $DOCC_EXEC process-archive transform-for-static-hosting \
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Branching Strategy</p>
                         <h3>7. Architecture and Branching Diagram</h3>
                         <p>To visually orient contributors, the repository utilizes a Trunk-Based Development model supplemented by short-lived feature branches. This strategy ensures the main branch remains stable while facilitating parallel development.</p>
 
@@ -379,6 +352,18 @@ gitGraph
                 </section>
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Baseline Architecture</a>
+                <a href="#section-2">Code-Signing & Headless</a>
+                <a href="#section-3">Test Automation</a>
+                <a href="#section-4">Quality & Concurrency</a>
+                <a href="#section-5">Security & TCC</a>
+                <a href="#section-6">DocC Pipeline</a>
+                <a href="#section-7">Branching Strategy</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>

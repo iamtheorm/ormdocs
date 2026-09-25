@@ -28,27 +28,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>Introduction</strong></a>
-                <a href="#section-2"><span>02</span><strong>System Architecture</strong></a>
-                <a href="#section-3"><span>03</span><strong>Idempotency & State</strong></a>
-                <a href="#section-4"><span>04</span><strong>Intent Classification</strong></a>
-                <a href="#section-5"><span>05</span><strong>Autonomous Remediation</strong></a>
-                <a href="#section-6"><span>06</span><strong>Interactive API Portal</strong></a>
-                <a href="#section-7"><span>07</span><strong>Error Handling</strong></a>
-                <a href="#section-8"><span>08</span><strong>OpenAPI Config</strong></a>
-                <a href="#section-9"><span>09</span><strong>Conclusion</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Architecture / Workflow Engines</span>
-                    <span>Stack / n8n, FastAPI, LangChain</span>
-                    <span>Pattern / Event-Driven Multi-Agent</span>
+                    <span><span class="dot"></span> Architecture / Workflow Engines</span>
+                    <span><span class="dot"></span> Stack / n8n, FastAPI, LangChain</span>
+                    <span><span class="dot"></span> Pattern / Event-Driven Multi-Agent</span>
                 </div>
                 <h2>Autonomous Multi-Agent Systems & Interactive API Gateways</h2>
                 <p class="article-subtitle">A Comprehensive Technical Monograph for Revenue Recovery & Incident Triage</p>
@@ -63,9 +48,7 @@
                 </section>
 
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Problem Statement</p>
                         <h3>1. Introduction & System Problem Statement</h3>
                         <p>Enterprise event-driven ecosystems process millions of disparate webhooks daily. These range from payment gateway failures (e.g., Stripe subscription cancellations, dropped webhook events, expired credit card tokens) to critical cloud infrastructure alerts (e.g., Datadog threshold breaches, Kubernetes pod crash loops).</p>
                         <p>Traditional workflow tools and unvalidated APIs exhibit severe limitations in production environments:</p>
@@ -79,9 +62,7 @@
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Architecture</p>
                         <h3>2. End-to-End System Architecture & Ingestion Layer</h3>
                         <p>The unified architecture bridges external webhooks into self-hosted n8n execution nodes while concurrently exposing developer endpoints via FastAPI.</p>
 
@@ -145,9 +126,7 @@ return $input.all().map(item => validateAndSanitizeWebhook(item));</code></pre>
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / State Management</p>
                         <h3>3. Distributed Idempotency and State Management</h3>
                         <p>In high-throughput event pipelines, webhooks are frequently delivered more than once due to network retries by third-party services. Processing a payment retry webhook twice can result in double-invoicing or redundant remediation actions. To guarantee exactly-once processing semantics, the pipeline utilizes a persistent transactional ledger backed by PostgreSQL with unique constraints on the <code>event_id</code> field.</p>
                         
@@ -181,9 +160,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Routing</p>
                         <h3>4. AI-Driven Intent Classification & Agentic Routing</h3>
                         <p>Once verified and de-duplicated, the structured event payload passes into an Advanced AI Agent Node powered by LangChain integration. Rather than rigid if-else blocks, the LLM analyzes messy error strings, stack traces, and transaction metadata.</p>
                         <p><strong>Few-Shot Prompting Strategy:</strong> The agent is primed with explicit system prompts and few-shot examples to map irregular inputs to precise schema definitions:</p>
@@ -196,9 +173,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Remediation</p>
                         <h3>5. Autonomous Remediation & Self-Healing Logic</h3>
                         <p>Execution branches diverge based on the structured classification output from the AI node:</p>
                         
@@ -240,9 +215,7 @@ graph LR
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / Developer Portal</p>
                         <h3>6. The Interactive API Developer Portal (FastAPI & PostgreSQL)</h3>
                         <p>To provide developers with an intuitive interface, backend services use FastAPI to expose robust RESTful operations. Below is a production-grade router demonstrating Pydantic v2 validation, dependency injection, and Bearer token verification.</p>
                         
@@ -300,9 +273,7 @@ def create_complex_query(
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Error Handling</p>
                         <h3>7. Comprehensive Error Handling & Status Code Matrix</h3>
                         <p>Standardized error propagation across both workflow automation dead-letter branches and API endpoints ensures predictable debugging and client handling.</p>
                         
@@ -370,9 +341,7 @@ def create_complex_query(
                 </section>
 
                 <section class="prose-section" id="section-8">
-                    <div class="section-marker">08</div>
                     <div class="section-content">
-                        <p class="mini-label">08 / OpenAPI</p>
                         <h3>8. OpenAPI & Swagger Portal Configuration</h3>
                         <p>FastAPI natively compiles runtime routing structures into an OpenAPI 3.0 specification. The configuration script below injects custom metadata, global bearer security schemes, and custom Swagger UI styling assets for the developer portal.</p>
                         
@@ -425,15 +394,27 @@ app.openapi = custom_openapi</code></pre>
                 </section>
 
                 <section class="prose-section" id="section-9">
-                    <div class="section-marker">09</div>
                     <div class="section-content">
-                        <p class="mini-label">09 / Conclusion</p>
                         <h3>9. Conclusion</h3>
                         <p>By combining the workflow orchestration capacity of self-hosted n8n, the cognitive reasoning of LangChain LLM agents, high-performance FastAPI routers, and robust backend engineering primitives (HMAC verification, PostgreSQL idempotency, RAG runbooks), engineering teams can construct autonomous systems that vastly outperform basic SaaS automation tools. This architecture eliminates silent revenue leakage, minimizes operational overhead, and establishes an elite benchmark for production-grade workflow automation and interactive API portals.</p>
                     </div>
                 </section>
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">Introduction</a>
+                <a href="#section-2">System Architecture</a>
+                <a href="#section-3">Idempotency & State</a>
+                <a href="#section-4">Intent Classification</a>
+                <a href="#section-5">Autonomous Remediation</a>
+                <a href="#section-6">Interactive API Portal</a>
+                <a href="#section-7">Error Handling</a>
+                <a href="#section-8">OpenAPI Config</a>
+                <a href="#section-9">Conclusion</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>

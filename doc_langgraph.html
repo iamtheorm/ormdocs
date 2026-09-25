@@ -26,25 +26,12 @@
     </nav>
 
     <main class="blogs-page">
-        <aside class="section-rail">
-            <div class="rail-heading"><span>Dossier Map</span></div>
-            <nav id="toc">
-                <a href="#section-1" class="is-active"><span>01</span><strong>The Enterprise Imperative</strong></a>
-                <a href="#section-2"><span>02</span><strong>System Overview</strong></a>
-                <a href="#section-3"><span>03</span><strong>State & Handoffs</strong></a>
-                <a href="#section-4"><span>04</span><strong>Architecture Flowchart</strong></a>
-                <a href="#section-5"><span>05</span><strong>Context Passing</strong></a>
-                <a href="#section-6"><span>06</span><strong>Production Bottlenecks</strong></a>
-                <a href="#section-7"><span>07</span><strong>Functional Implementation</strong></a>
-            </nav>
-        </aside>
-
         <article class="article research-note reveal">
             <header class="article-header">
                 <div class="dossier-banner">
-                    <span>Architecture Guide / LangGraph</span>
-                    <span>Audience / Software Architects</span>
-                    <span>Status / Published</span>
+                    <span><span class="dot"></span> Architecture Guide / LangGraph</span>
+                    <span><span class="dot"></span> Audience / Software Architects</span>
+                    <span><span class="dot"></span> Status / Published</span>
                 </div>
                 <h2>LangGraph Multi-Agent Architecture Guide</h2>
                 <p class="article-subtitle">Architecting Automated Reasoning Engines: A Deep Dive into LangGraph Multi-Agent Orchestration</p>
@@ -52,9 +39,7 @@
 
             <div class="article-body">
                 <section class="prose-section" id="section-1">
-                    <div class="section-marker">01</div>
                     <div class="section-content">
-                        <p class="mini-label">01 / Introduction</p>
                         <h3>The Enterprise Imperative for Multi-Agent Systems</h3>
                         <p>The integration of artificial intelligence into mission-critical enterprise environments has fundamentally shifted from monolithic, single-agent models to sophisticated, coordinated multi-agent systems (MAS). In highly regulated, precision-dependent domains such as revenue cycle management (RCM), transaction processing, and compliance auditing, a single large language model (LLM) tasked with end-to-end execution inevitably falters. Monolithic agents suffer from context window degradation, permission drift, and an inability to reliably verify their own outputs when operating across complex, multi-step workflows.</p>
                         
@@ -104,9 +89,7 @@
                 </section>
 
                 <section class="prose-section" id="section-2">
-                    <div class="section-marker">02</div>
                     <div class="section-content">
-                        <p class="mini-label">02 / Foundation</p>
                         <h3>LangGraph System Overview</h3>
                         <p>LangGraph operates as a stateful graph runtime built on top of directed acyclic and cyclic graphs. It fundamentally moves away from the opaque, unpredictable abstractions of traditional agent executors, instead exposing the internal decision loop of the AI as a mutable, trackable, and highly controlled state object.</p>
 
@@ -120,9 +103,7 @@
                 </section>
 
                 <section class="prose-section" id="section-3">
-                    <div class="section-marker">03</div>
                     <div class="section-content">
-                        <p class="mini-label">03 / Routing</p>
                         <h3>Nodes, Edges, and State Transitions</h3>
                         <p>Nodes are the operational units of the graph. In a multi-agent system, a node typically encapsulates the invocation of a specific LLM, a compiled subgraph representing a distinct agent, or a deterministic Python function executing a database query.</p>
 
@@ -143,9 +124,7 @@
                 </section>
 
                 <section class="prose-section" id="section-4">
-                    <div class="section-marker">04</div>
                     <div class="section-content">
-                        <p class="mini-label">04 / Diagram</p>
                         <h3>Automated Reasoning Engine Architecture</h3>
                         <p>The following diagram illustrates the architecture of a multi-agent transaction recovery system. The orchestrator receives the transaction payload, the execution state is durably persisted via a Postgres checkpointer, and execution is dynamically routed to specialized sub-agents using the Command.PARENT handoff pattern.</p>
 
@@ -178,9 +157,7 @@ flowchart LR
                 </section>
 
                 <section class="prose-section" id="section-5">
-                    <div class="section-marker">05</div>
                     <div class="section-content">
-                        <p class="mini-label">05 / Memory</p>
                         <h3>Context Passing and Advanced Memory Management</h3>
                         <p>A paramount failure point in any multi-agent transaction processing system is the unchecked accumulation of conversational context. As multiple agents debate constraints, invoke external tools, and hand off control, the messages array within the graph state grows exponentially. Systems must employ rigorous context engineering methodologies categorized into four distinct strategies: Writing, Selecting, Compressing, and Isolating.</p>
 
@@ -230,9 +207,7 @@ flowchart LR
                 </section>
 
                 <section class="prose-section" id="section-6">
-                    <div class="section-marker">06</div>
                     <div class="section-content">
-                        <p class="mini-label">06 / Security & Scaling</p>
                         <h3>Overcoming Production Bottlenecks</h3>
                         <p>Transitioning a multi-agent reasoning engine into a mission-critical environment reveals profound architectural vulnerabilities.</p>
                         
@@ -249,9 +224,7 @@ flowchart LR
                 </section>
 
                 <section class="prose-section" id="section-7">
-                    <div class="section-marker">07</div>
                     <div class="section-content">
-                        <p class="mini-label">07 / Implementation</p>
                         <h3>Functional Python Implementation</h3>
                         <p>The following functional Python implementation demonstrates how to build the core orchestration loop for a multi-agent transaction recovery system.</p>
                         <pre><code><span class="token-keyword">from</span> typing <span class="token-keyword">import</span> Annotated, Literal
@@ -376,6 +349,18 @@ app = builder.compile(checkpointer=memory)</code></pre>
 
             </div>
         </article>
+        <aside class="section-rail">
+            <div class="rail-heading"><span>ON THIS PAGE</span></div>
+            <nav id="toc">
+                <a href="#section-1" class="is-active">The Enterprise Imperative</a>
+                <a href="#section-2">System Overview</a>
+                <a href="#section-3">State & Handoffs</a>
+                <a href="#section-4">Architecture Flowchart</a>
+                <a href="#section-5">Context Passing</a>
+                <a href="#section-6">Production Bottlenecks</a>
+                <a href="#section-7">Functional Implementation</a>
+            </nav>
+        </aside>
     </main>
     <footer class="site-footer">
         <p>&copy; 2026 Ritik Mishra. All rights reserved.</p>
