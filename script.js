@@ -126,5 +126,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initial call
     updateDossierScroll();
-
+});
 
