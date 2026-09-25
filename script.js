@@ -127,82 +127,112 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial call
     updateDossierScroll();
 
-    // --- Code Syntax Highlighting (Prism.js) ---
-    const prismCss = document.createElement('link');
-    prismCss.rel = 'stylesheet';
-    prismCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css';
-    document.head.appendChild(prismCss);
+    // --- Interactive Node Background ---
+    const canvas = document.createElement('canvas');
+    canvas.id = 'bg-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.zIndex = '0';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.opacity = '1';
+    document.body.prepend(canvas);
 
-    // Auto-add language-javascript class to code blocks if missing
-    document.querySelectorAll('pre code').forEach(block => {
-        if (!block.className.includes('language-')) {
-            block.classList.add('language-javascript');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let particles = [];
+    const maxParticles = 80;
+    const connectionDistance = 140;
+    let mouse = { x: null, y: null, radius: 180 };
+
+    function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.x;
+        mouse.y = e.y;
+    });
+
+    window.addEventListener('mouseout', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * 1.2;
+            this.vy = (Math.random() - 0.5) * 1.2;
+            this.radius = Math.random() * 2 + 1;
         }
-    });
 
-    const loadScript = (src) => new Promise(resolve => {
-        const s = document.createElement('script');
-        s.src = src;
-        s.onload = resolve;
-        document.body.appendChild(s);
-    });
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
 
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js').then(() => {
-        Promise.all([
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js'),
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js'),
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js')
-        ]).then(() => {
-            if (window.Prism) {
-                Prism.highlightAll();
-            }
-        });
-    });
-
-    // --- Apply Custom CodeBlock UI Wrapper ---
-    document.querySelectorAll('.prose-section pre').forEach(pre => {
-        // Skip if already wrapped
-        if (pre.parentElement.classList.contains('code-block-wrapper')) return;
-
-        // Extract potential filename from previous paragraph or default
-        let filename = 'terminal';
-        if (pre.previousElementSibling && pre.previousElementSibling.tagName === 'P') {
-            const strongTag = pre.previousElementSibling.querySelector('strong');
-            if (strongTag && strongTag.textContent.includes('.')) {
-                filename = strongTag.textContent;
-            }
+            if (this.x < 0 || this.x > width) this.vx *= -1;
+            if (this.y < 0 || this.y > height) this.vy *= -1;
         }
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'code-block-wrapper';
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.6)';
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < maxParticles; i++) {
+        particles.push(new Particle());
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
         
-        const header = document.createElement('div');
-        header.className = 'code-block-header';
-        
-        const filenameSpan = document.createElement('span');
-        filenameSpan.className = 'code-block-filename';
-        filenameSpan.textContent = filename;
-        
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'code-block-copy';
-        copyBtn.title = 'Copy code';
-        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        
-        copyBtn.addEventListener('click', () => {
-            const code = pre.textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                setTimeout(() => {
-                    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-                }, 2000);
-            });
-        });
-        
-        header.appendChild(filenameSpan);
-        header.appendChild(copyBtn);
-        
-        pre.parentNode.insertBefore(wrapper, pre);
-        wrapper.appendChild(header);
-        wrapper.appendChild(pre);
-    });
+        for (let i = 0; i < particles.length; i++) {
+            particles[i].update();
+            particles[i].draw();
+
+            for (let j = i; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < connectionDistance) {
+                    ctx.beginPath();
+                    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                    ctx.strokeStyle = `rgba(59, 130, 246, ${(1 - distance / connectionDistance) * (isLight ? 2 : 1)})`;
+                    ctx.lineWidth = 1;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+
+            if (mouse.x != null && mouse.y != null) {
+                const dx = particles[i].x - mouse.x;
+                const dy = particles[i].y - mouse.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius) {
+                    ctx.beginPath();
+                    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                    ctx.strokeStyle = `rgba(139, 92, 246, ${(1 - distance / mouse.radius) * (isLight ? 2 : 1)})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+    animate();
 });

@@ -1,16 +1,16 @@
 /* Modern Premium Reset & Base Styles */
 :root {
   --rgb-text: 255, 255, 255;
-  --bg-color: #0b0c10;
-  --text-primary: #ffffff;
-  --text-secondary: #d1d5db;
-  --accent-color: #00b3b0;
-  --accent-glow: rgba(0, 179, 176, 0.4);
-  --accent-secondary: #3B82F6;
-  --card-bg: #16181d;
-  --card-border: #1f2937;
-  --card-hover-border: rgba(255, 255, 255, 0.15);
-  --nav-height: 65px;
+  --bg-color: #050505;
+  --text-primary: #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --accent-color: #3B82F6;
+  --accent-glow: rgba(59, 130, 246, 0.4);
+  --accent-secondary: #8B5CF6;
+  --card-bg: rgba(var(--rgb-text), 0.02);
+  --card-border: rgba(var(--rgb-text), 0.08);
+  --card-hover-border: rgba(var(--rgb-text), 0.2);
+  --nav-height: 70px;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
@@ -44,10 +44,13 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-color);
   color: var(--text-primary);
-  line-height: 1.7;
-  font-size: 1.05rem;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.06), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06), transparent 25%);
+  background-attachment: fixed;
 }
 
 /* Site Header Navbar */
@@ -61,7 +64,9 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 2rem;
-  background: var(--bg-color);
+  background: #050505;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   z-index: 1000;
   transition: all 0.3s ease;
@@ -377,7 +382,7 @@ body {
 
 .blogs-page {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 240px 1fr;
   max-width: 1200px;
   margin: 0 auto;
   padding-top: calc(var(--nav-height) + 4rem);
@@ -392,9 +397,7 @@ body {
   top: calc(var(--nav-height) + 2rem);
   height: calc(100vh - var(--nav-height) - 4rem);
   overflow-y: auto;
-  padding-left: 2rem;
-  border-left: 1px solid var(--card-border);
-  order: 2;
+  padding-right: 1rem;
 }
 
 /* Custom Scrollbar for rail */
@@ -421,12 +424,15 @@ body {
 
 .section-rail a {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   text-decoration: none;
   color: var(--text-secondary);
   font-size: 0.85rem;
   transition: all 0.2s;
-  padding: 0.25rem 0;
+  padding: 0.5rem 0;
+  border-left: 2px solid transparent;
+  margin-left: -2px; /* Pull into border area */
+  padding-left: 1rem;
 }
 
 .section-rail a:hover {
@@ -434,25 +440,34 @@ body {
 }
 
 .section-rail a.is-active {
-  color: var(--accent-color);
+  color: var(--text-primary);
+  border-left-color: var(--accent-color);
+  background: linear-gradient(90deg, rgba(59,130,246,0.1) 0%, transparent 100%);
 }
 
 .section-rail a span {
-  display: none; /* Hide numbers to match Storyblok */
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding-top: 0.1rem;
+}
+
+.section-rail a.is-active span {
+  color: var(--accent-color);
 }
 
 .section-rail a strong {
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* Main Article */
 .article {
   max-width: 850px;
-  padding: 0 0 8rem 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
+  padding: 3rem 4rem 8rem 4rem;
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
   transition: all 0.3s ease;
 }
 
@@ -494,9 +509,9 @@ body {
 .article-header h2 {
   font-size: 3rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin-bottom: 1.5rem;
-  line-height: 1.2;
+  line-height: 1.1;
   color: var(--text-primary);
 }
 
@@ -508,38 +523,43 @@ body {
 }
 
 .prose-section {
-  display: block;
-  margin-bottom: 3rem;
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 4rem;
   position: relative;
 }
 
 .section-marker {
-  display: none;
+  flex-shrink: 0;
+  width: 50px;
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  color: rgba(var(--rgb-text),0.1);
+  font-weight: 700;
+  border-top: 2px solid var(--card-border);
+  padding-top: 0.5rem;
 }
 
 .section-content {
-  width: 100%;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 .mini-label {
-  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .section-content h3 {
-  font-size: 2.25rem;
+  font-size: 1.75rem;
   margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--card-border);
   color: var(--text-primary);
-  letter-spacing: -0.01em;
-  font-weight: 800;
-}
-
-.section-content h4 {
-  font-size: 1.5rem;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
+  letter-spacing: -0.02em;
   font-weight: 700;
 }
 
@@ -577,108 +597,39 @@ body {
 }
 .section-content a:hover { color: var(--accent-color); }
 
-/* New Code Block Design */
-.code-block-wrapper {
-  margin: 2rem 0;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-  background: var(--bg-color);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-
-.code-block-header {
-  background: var(--card-bg);
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--card-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.code-block-filename {
-  font-size: 0.75rem;
-  font-family: var(--font-mono);
-  color: var(--text-secondary);
-}
-
-.code-block-copy {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.code-block-copy:hover {
-  color: var(--text-primary);
-  background: rgba(255,255,255,0.1);
-}
-
+/* Code Blocks */
 .prose-section pre {
-  background: var(--bg-color);
-  border: none;
-  border-radius: 0;
-  padding: 1.25rem;
-  margin: 0;
+  background: #0A0A0A;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2.5rem 0;
   overflow-x: auto;
   position: relative;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
 .prose-section pre::before {
-  display: none;
+  content: "TERMINAL";
+  position: absolute;
+  top: 0; right: 0;
+  background: rgba(var(--rgb-text),0.05);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 0.3rem 0.6rem;
+  border-bottom-left-radius: 8px;
+  letter-spacing: 0.05em;
 }
 
 .prose-section pre code {
   background: none;
   padding: 0;
   font-size: 0.9rem;
-  color: #d1d5db;
+  color: #E4E4E7;
   display: block;
   line-height: 1.6;
   font-family: var(--font-mono);
-}
-
-/* Storyblok Admonitions */
-.admonition {
-  padding: 1.25rem;
-  border-radius: 6px;
-  margin: 1.5rem 0;
-  border: 1px solid transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.admonition-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.admonition p {
-  margin-bottom: 0 !important;
-  font-size: 0.95rem !important;
-  color: #e0e0e0 !important;
-}
-
-.admonition.note {
-  background: #111a3b;
-  border-left: 3px solid #3B82F6;
-  color: #3B82F6;
-}
-
-.admonition.tip {
-  background: #2b143a;
-  border-left: 3px solid #d946ef;
-  color: #d946ef;
 }
 
 .prose-section p code, .prose-section li code {
@@ -702,8 +653,6 @@ body {
 /* Tables */
 .section-content table {
   width: 100%;
-  display: block;
-  overflow-x: auto;
   border-collapse: separate;
   border-spacing: 0;
   margin: 2.5rem 0;
@@ -879,11 +828,7 @@ body.reader-mode-active .article {
   background: transparent;
 }
 
-
-/* Mermaid Dark Island for Light Mode */
-[data-theme="light"] .mermaid {
-  background: #0f172a;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+/* Invert Mermaid for Light Mode */
+[data-theme="light"] .mermaid svg {
+  filter: invert(1) hue-rotate(180deg);
 }

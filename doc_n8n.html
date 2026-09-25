@@ -29,7 +29,7 @@
 
     <main class="blogs-page">
         <aside class="section-rail">
-            <div class="rail-heading"><span>On this page</span></div>
+            <div class="rail-heading"><span>Dossier Map</span></div>
             <nav id="toc">
                 <a href="#section-1" class="is-active"><span>01</span><strong>Introduction</strong></a>
                 <a href="#section-2"><span>02</span><strong>System Architecture</strong></a>
@@ -67,14 +67,6 @@
                     <div class="section-content">
                         <p class="mini-label">01 / Problem Statement</p>
                         <h3>1. Introduction & System Problem Statement</h3>
-
-                        <div class="admonition note">
-                            <div class="admonition-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                Note
-                            </div>
-                            <p>This section outlines key architectural decisions. Keep in mind that system constraints may dictate deviations from these optimal pathways depending on your deployment environment.</p>
-                        </div>
                         <p>Enterprise event-driven ecosystems process millions of disparate webhooks daily. These range from payment gateway failures (e.g., Stripe subscription cancellations, dropped webhook events, expired credit card tokens) to critical cloud infrastructure alerts (e.g., Datadog threshold breaches, Kubernetes pod crash loops).</p>
                         <p>Traditional workflow tools and unvalidated APIs exhibit severe limitations in production environments:</p>
                         <ul>
@@ -91,14 +83,6 @@
                     <div class="section-content">
                         <p class="mini-label">02 / Architecture</p>
                         <h3>2. End-to-End System Architecture & Ingestion Layer</h3>
-
-                        <div class="admonition tip">
-                            <div class="admonition-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                                Tip
-                            </div>
-                            <p>To optimize performance and avoid unnecessary bottlenecks, ensure your caching layer is properly invalidating outdated tokens when using this workflow in production.</p>
-                        </div>
                         <p>The unified architecture bridges external webhooks into self-hosted n8n execution nodes while concurrently exposing developer endpoints via FastAPI.</p>
 
                         <div class="mermaid">

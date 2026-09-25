@@ -27,7 +27,7 @@
 
     <main class="blogs-page">
         <aside class="section-rail">
-            <div class="rail-heading"><span>On this page</span></div>
+            <div class="rail-heading"><span>Dossier Map</span></div>
             <nav id="toc">
                 <a href="#section-1" class="is-active"><span>01</span><strong>The Enterprise Imperative</strong></a>
                 <a href="#section-2"><span>02</span><strong>System Overview</strong></a>
@@ -56,14 +56,6 @@
                     <div class="section-content">
                         <p class="mini-label">01 / Introduction</p>
                         <h3>The Enterprise Imperative for Multi-Agent Systems</h3>
-
-                        <div class="admonition note">
-                            <div class="admonition-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                Note
-                            </div>
-                            <p>This section outlines key architectural decisions. Keep in mind that system constraints may dictate deviations from these optimal pathways depending on your deployment environment.</p>
-                        </div>
                         <p>The integration of artificial intelligence into mission-critical enterprise environments has fundamentally shifted from monolithic, single-agent models to sophisticated, coordinated multi-agent systems (MAS). In highly regulated, precision-dependent domains such as revenue cycle management (RCM), transaction processing, and compliance auditing, a single large language model (LLM) tasked with end-to-end execution inevitably falters. Monolithic agents suffer from context window degradation, permission drift, and an inability to reliably verify their own outputs when operating across complex, multi-step workflows.</p>
                         
                         <p>In a revenue recovery or transaction-processing workflow, operations are strictly gated by business rules and compliance mandates. An incoming transaction dispute or a failed payment retry must be extracted, validated against internal enterprise resource planning (ERP) databases, evaluated for regulatory compliance, and eventually resolved or escalated for human review.</p>
@@ -116,14 +108,6 @@
                     <div class="section-content">
                         <p class="mini-label">02 / Foundation</p>
                         <h3>LangGraph System Overview</h3>
-
-                        <div class="admonition tip">
-                            <div class="admonition-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                                Tip
-                            </div>
-                            <p>To optimize performance and avoid unnecessary bottlenecks, ensure your caching layer is properly invalidating outdated tokens when using this workflow in production.</p>
-                        </div>
                         <p>LangGraph operates as a stateful graph runtime built on top of directed acyclic and cyclic graphs. It fundamentally moves away from the opaque, unpredictable abstractions of traditional agent executors, instead exposing the internal decision loop of the AI as a mutable, trackable, and highly controlled state object.</p>
 
                         <h4>The State Contract and Schema Design</h4>
