@@ -59,6 +59,14 @@
                     <div class="section-content">
                         <p class="mini-label">01 / Foundation</p>
                         <h3>The Architectural Foundations of Real-Time Perception</h3>
+
+                        <div class="admonition note">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                Note
+                            </div>
+                            <p>This section outlines key architectural decisions. Keep in mind that system constraints may dictate deviations from these optimal pathways depending on your deployment environment.</p>
+                        </div>
                         <p>The deployment of real-time computer vision applications has fundamentally transformed human-computer interaction, shifting from computationally expensive cloud-based processing to highly optimized on-device edge AI. Whether engineers are tasked with developing a robust automated proctoring framework to monitor student behavior with high precision or constructing a sub-millisecond gesture-recognition engine for interactive browser games, the foundational requirements remain unequivocally identical. These systems demand exceptional predictive accuracy, zero-lag visual feedback, and seamless integration without stalling the main application execution thread.</p>
                         <p>Constructing such an advanced pipeline necessitates significantly more than merely chaining together pre-trained models in a sequential loop. Standard, synchronous computer vision implementations inevitably encounter critical performance bottlenecks. These limitations range from physical hardware constraints, such as USB bus bandwidth contention and generic driver buffer bloat, to the software architectural limitations imposed by the Global Interpreter Lock (GIL) inherent in the Python runtime environment.</p>
                         <p>Overcoming these multi-faceted challenges mandates a sophisticated, performance-tuned architectural paradigm that completely decouples video acquisition from the heavy mathematical workload of neural network inference. This exhaustive technical tutorial provides a step-by-step developer guide on engineering a real-time computer vision tracking pipeline using the OpenCV library and MediaPipe Tasks API.</p>
@@ -70,6 +78,14 @@
                     <div class="section-content">
                         <p class="mini-label">02 / Hardware</p>
                         <h3>The USB Bandwidth and UVC Protocol Bottleneck</h3>
+
+                        <div class="admonition tip">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                Tip
+                            </div>
+                            <p>To optimize performance and avoid unnecessary bottlenecks, ensure your caching layer is properly invalidating outdated tokens when using this workflow in production.</p>
+                        </div>
                         <p>Modern computer vision systems must operate under strict, deterministic response time constraints. When an application captures video data at standard rates of 30 frames per second (FPS), a new frame arrives from the hardware sensor approximately every 33 milliseconds. However, complex neural network inference operating on a standard CPU can easily consume 90 to 100 milliseconds per frame. If the software architecture relies on a standard synchronous callback structure, this timing discrepancy causes the application's message queue to rapidly fill with unprocessed frames.</p>
                         <p>Generic technical guides frequently ignore the underlying hardware issues that cause USB cameras to struggle with lag in real-time applications. The physical USB connection forms the foundation of low-latency performance; without addressing this, no software-level threading architecture will resolve persistent lag. USB operates as a shared bus topology, meaning multiple peripherals compete for the same finite bandwidth pool. The legacy USB 2.0 standard provides a maximum theoretical bandwidth of 480 Mbps, which is fundamentally insufficient for high-frame-rate, high-resolution uncompressed video, forcing the host system to aggressively buffer frames and delay transmission.</p>
                         <p>Furthermore, the default USB Video Class (UVC) protocol, utilized by nearly all plug-and-play USB cameras, adds unnecessary overhead for real-time edge processing. Cameras and host operating systems utilize excessive frame buffers to smooth out video playback. Default driver and software settings typically enable between five and ten frame buffers. For a real-time tracking pipeline, each additional buffer adds between 16 and 33 milliseconds of sequential lag at 30 to 60 FPS. For real-time autonomous applications, the system only requires one or two frame buffers at maximum; any additional buffering creates a backlog of stale frames.</p>

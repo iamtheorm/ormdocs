@@ -56,6 +56,14 @@
                     <div class="section-content">
                         <p class="mini-label">01 / Ecosystem</p>
                         <h3>Architectural Foundation and System Ecosystem</h3>
+
+                        <div class="admonition note">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                Note
+                            </div>
+                            <p>This section outlines key architectural decisions. Keep in mind that system constraints may dictate deviations from these optimal pathways depending on your deployment environment.</p>
+                        </div>
                         <p>The design and publication of a developer-facing application programming interface (API) for backend services handling complex queries, user data management, and high-latency artificial intelligence (AI) inference requests require a robust architectural foundation. Modern API consumers expect an interactive, contract-first integration experience characterized by exact JSON schemas, diverse code samples, and deterministic error handling. This technical specification details the construction of a complete, interactive API developer portal leveraging FastAPI for asynchronous routing, PostgreSQL for persistent data and vector storage, and Redis for distributed rate limiting and state management.</p>
                         
                         <p>FastAPI serves as the core framework, chosen for its native asynchronous capabilities built upon the Starlette Asynchronous Server Gateway Interface (ASGI) toolkit, and its reliance on Pydantic V2 for rigorous data validation and schema generation. Because FastAPI automatically generates an OpenAPI 3.1 specification directly from Python type hints, it serves as the perfect engine for rendering modern three-pane documentation portals using tools such as Scalar or ReDoc.</p>
@@ -92,6 +100,14 @@ graph LR
                     <div class="section-content">
                         <p class="mini-label">02 / OpenAPI</p>
                         <h3>The Developer Experience: OpenAPI 3.1 and Three-Pane Rendering</h3>
+
+                        <div class="admonition tip">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                Tip
+                            </div>
+                            <p>To optimize performance and avoid unnecessary bottlenecks, ensure your caching layer is properly invalidating outdated tokens when using this workflow in production.</p>
+                        </div>
                         <p>The ultimate deliverable of this system is the interactive developer portal. A premium developer experience demands a highly readable specification, which is best achieved through a three-pane layout rather than traditional top-down renderers.</p>
 
                         <h4>Scalar and ReDoc Implementations</h4>

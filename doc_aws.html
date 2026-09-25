@@ -56,6 +56,14 @@
                     <div class="section-content">
                         <p class="mini-label">01 / Overview</p>
                         <h3>Introduction to the Operational Blueprint</h3>
+
+                        <div class="admonition note">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                Note
+                            </div>
+                            <p>This section outlines key architectural decisions. Keep in mind that system constraints may dictate deviations from these optimal pathways depending on your deployment environment.</p>
+                        </div>
                         <p>Operating a highly available, scalable internet of things (IoT) energy optimization platform on Amazon Web Services (AWS) requires strict adherence to the AWS Well-Architected Framework. The deployment of an enterprise-grade IoT platform—responsible for ingesting millions of telemetry records from distributed energy assets, processing them in real-time, and executing automated control algorithms—demands an architecture that prioritizes fault isolation, data durability, and zero-downtime continuous integration and continuous deployment (CI/CD).</p>
                         <p>This operations manual serves as the definitive runbook for Site Reliability Engineering (SRE) and DevOps teams. A standard runbook must provide actionable, step-by-step operational guidance for handling recurring tasks, alert remediation, and deployment procedures, ensuring that engineers have the necessary context to prevent destructive actions without being overwhelmed by extraneous theory. To satisfy these requirements, this document exhaustively details the reference architecture, network topology, minimum-privilege security guardrails, edge-device resilience strategies, database migration methodologies, and explicit deployment rollback procedures.</p>
                         <p>By utilizing infrastructure as code (IaC) and serverless components, the architecture inherently aligns with the Reliability and Operational Excellence pillars of the Well-Architected Framework, effectively reducing toil and standardizing failure management across the fleet.</p>
@@ -67,6 +75,14 @@
                     <div class="section-content">
                         <p class="mini-label">02 / Topology</p>
                         <h3>Reference Architecture and Network Topology</h3>
+
+                        <div class="admonition tip">
+                            <div class="admonition-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                                Tip
+                            </div>
+                            <p>To optimize performance and avoid unnecessary bottlenecks, ensure your caching layer is properly invalidating outdated tokens when using this workflow in production.</p>
+                        </div>
                         <p>The foundation of a resilient cloud environment is a rigorously partitioned Virtual Private Cloud (VPC) topology that enforces cross-Availability Zone (AZ) high availability and strict ingress/egress controls. The platform utilizes a multi-AZ deployment strategy across a minimum of three isolated Availability Zones to guarantee fault tolerance and 99.999999999% durability for object storage systems.</p>
                         
                         <h4>The Three-Tier VPC Architecture</h4>
