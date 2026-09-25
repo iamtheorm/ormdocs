@@ -158,4 +158,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // --- Apply Custom CodeBlock UI Wrapper ---
+    document.querySelectorAll('.prose-section pre').forEach(pre => {
+        // Skip if already wrapped
+        if (pre.parentElement.classList.contains('code-block-wrapper')) return;
+
+        // Extract potential filename from previous paragraph or default
+        let filename = 'terminal';
+        if (pre.previousElementSibling && pre.previousElementSibling.tagName === 'P') {
+            const strongTag = pre.previousElementSibling.querySelector('strong');
+            if (strongTag && strongTag.textContent.includes('.')) {
+                filename = strongTag.textContent;
+            }
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
+        
+        const filenameSpan = document.createElement('span');
+        filenameSpan.className = 'code-block-filename';
+        filenameSpan.textContent = filename;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'code-block-copy';
+        copyBtn.title = 'Copy code';
+        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        
+        copyBtn.addEventListener('click', () => {
+            const code = pre.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                }, 2000);
+            });
+        });
+        
+        header.appendChild(filenameSpan);
+        header.appendChild(copyBtn);
+        
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+    });
 });
