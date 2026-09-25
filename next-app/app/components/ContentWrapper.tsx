@@ -85,6 +85,37 @@ export default function ContentWrapper({ content, toc, slug }) {
             if (window.Prism) Prism.highlightAll();
         });
     });
+
+    // Run Mermaid for graphs/schemas
+    loadScript('https://cdn.jsdelivr.net/npm/mermaid@10.4.0/dist/mermaid.min.js').then(() => {
+        if (window.mermaid) {
+            window.mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+            
+            // Sometimes markdown generates <code class="language-mermaid">, convert them to <div class="mermaid">
+            document.querySelectorAll('.article code.language-mermaid').forEach(block => {
+                const pre = block.parentElement;
+                if (pre && pre.tagName === 'PRE') {
+                    const div = document.createElement('div');
+                    div.className = 'mermaid my-8 flex justify-center bg-[#16181d] p-6 rounded-lg border border-gray-800 shadow-lg';
+                    div.textContent = block.textContent;
+                    // If it was wrapped by our CodeBlock logic earlier, we need to replace the whole wrapper
+                    if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) {
+                        pre.parentElement.parentNode.replaceChild(div, pre.parentElement);
+                    } else {
+                        pre.parentNode.replaceChild(div, pre);
+                    }
+                }
+            });
+
+            // For standard <div class="mermaid"> elements
+            document.querySelectorAll('.article .mermaid').forEach(el => {
+                 el.classList.add('my-8', 'flex', 'justify-center', 'bg-[#16181d]', 'p-6', 'rounded-lg', 'border', 'border-gray-800', 'shadow-lg');
+            });
+
+            window.mermaid.run();
+        }
+    });
+
   }, [slug]);
 
   return (
