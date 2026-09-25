@@ -80,7 +80,15 @@ graph TD
                             <li>The official React SDK installed in your project.</li>
                         </ul>
                         <p>To install the SDK, run the following command in your terminal:</p>
-                        <pre><code>npm install @storyblok/react</code></pre>
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">npm install @storyblok/react</code></pre>
+</div>
                         <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
                             📸 SCREENSHOT PLACEHOLDER: Terminal output showing the successful installation of the @storyblok/react package
                         </div>
@@ -166,8 +174,14 @@ graph TD
                         <p>Within this initialization, pass the <code>apiPlugin</code> inside the <code>use</code> array. Under the hood, the <code>apiPlugin</code> attaches the core Storyblok API client (<code>storyblok-js-client</code>) to the React SDK. This integration handles rate limit orchestration, resolves cache versioning, and enables the <code>getStoryblokApi</code> utility to securely fetch content using the provided access token, abstracting complex representational state transfer (REST) interactions away from the UI layer.</p>
                         <p>Create a <code>StoryblokProvider.tsx</code> file to wrap your application:</p>
                         
-                        <pre><code><strong>// StoryblokProvider.tsx</strong>
-"use client";
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">StoryblokProvider.tsx</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">"use client";
 
 import { storyblokInit, apiPlugin } from "@storyblok/react/rsc";
 
@@ -179,13 +193,20 @@ storyblokInit({
 export default function StoryblokProvider({ children }: { children: React.ReactNode }) {
   return &lt;&gt;{children}&lt;/&gt;;
 }</code></pre>
+</div>
 
                         <h4>5. Fetch the global configuration</h4>
                         <p>Fetch the global data in the root <code>app/layout.tsx</code> file. Next.js 15 doesn't cache fetch requests by default. Use the <code>tags</code> option to cache the heavy mega-menu payload at the edge. This prevents the application from exhausting Storyblok API rate limits on every page route.</p>
                         <p>In production environments, external APIs experience latency or failure. Implement a <code>try/catch</code> block to handle potential network errors gracefully and provide a fallback UI, ensuring the application layout doesn't crash when attempting to retrieve the navigation structure.</p>
                         
-                        <pre><code><strong>// app/layout.tsx</strong>
-import { draftMode } from "next/headers";
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">app/layout.tsx</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import { draftMode } from "next/headers";
 import StoryblokProvider from "./components/StoryblokProvider";
 import Navigation from "./components/Navigation";
 import "./globals.css";
@@ -245,13 +266,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     &lt;/html&gt;
   );
 }</code></pre>
+</div>
 
                         <h4>6. Invalidate the cache with webhooks</h4>
                         <p>If the global layout caches at the edge, it requires an on-demand revalidation trigger to update when a content editor publishes changes. Without this trigger, the cache serves stale navigation data indefinitely.</p>
                         <p>To resolve this, create a Next.js Route Handler at <code>app/api/revalidate/route.ts</code> to listen for Storyblok webhooks, verify the payload, and purge the corresponding cache tag:</p>
                         
-                        <pre><code><strong>// route.ts</strong>
-import { revalidateTag } from "next/cache";
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">route.ts</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -266,6 +294,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ revalidated: false, now: Date.now() });
 }</code></pre>
+</div>
 
                         <h4>7. Map components dynamically with TypeScript</h4>
                         <p>Unlike traditional monolithic platforms where templates are hardcoded to specific URLs, a headless frontend receives a polymorphic array of JSON blocks. The structure of this array is unpredictable, dictated solely by how the editor arranges the blocks in the CMS.</p>
@@ -283,8 +312,14 @@ export async function POST(request: Request) {
                             </div>
                         </div>
                         
-                        <pre><code><strong>// Navigation.tsx</strong>
-"use client";
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Navigation.tsx</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">"use client";
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
@@ -397,6 +432,7 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
     &lt;/ul&gt;
   );
 }</code></pre>
+</div>
                     </div>
                 </section>
 

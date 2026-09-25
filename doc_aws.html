@@ -160,7 +160,14 @@ graph LR
 
                         <p>The runbook mandates the deployment of the Full Jitter algorithm across all C-based FreeRTOS edge devices and Python SDKs. Below is the required Python implementation for AWS IoT edge SDKs enforcing exponential backoff with Full Jitter:</p>
 
-                        <pre><code>import time
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import time
 import random
 from functools import wraps
 from botocore.exceptions import ClientError
@@ -191,6 +198,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
             raise Exception("Maximum retries exhausted due to persistent network failures.")
         return wrapper
     return decorator</code></pre>
+</div>
                     </div>
                 </section>
 
@@ -204,7 +212,14 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
                         <p>To enforce this architecture programmatically, S3 bucket policies and KMS key policies utilize the <code>aws:SourceVpc</code> condition key. This IAM condition enforces that any successful API call must originate from the specified VPC. Relying on the <code>aws:SourceVpc</code> key is a proven best practice over the <code>aws:SourceVpce</code> (VPC Endpoint ID) key, as endpoint IDs are ephemeral and can change if the infrastructure is redeployed via Terraform or AWS CloudFormation, whereas the VPC ID remains a static identifier.</p>
                         
                         <p>An example of a highly restrictive, minimum-privilege S3 bucket policy for the telemetry data lake is provided below:</p>
-                        <pre><code>{
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -243,6 +258,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
     }
   ]
 }</code></pre>
+</div>
 
                         <h4>X.509 Certificate Management and Automated Rotation</h4>
                         <p>AWS IoT Core enforces Transport Layer Security (TLS 1.3) mutual authentication using X.509 certificates to establish a trusted connection between the edge devices and the cloud broker. These certificates are the core of device identity and are inherently long-lived; however, organizational security policies require scheduled rotation of the certificate and private key to minimize exposure if hardware is physically compromised.</p>
@@ -287,7 +303,14 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
                         <h4>OpenTelemetry Sidecar Configuration</h4>
                         <p>Comprehensive observability is non-negotiable for SRE teams tasked with monitoring a distributed microservice architecture. To facilitate distributed tracing and high-resolution metric collection, an AWS Distro for OpenTelemetry (ADOT) sidecar container must be deployed within every ECS Task Definition.</p>
                         <p>The following JSON snippet illustrates the proper structure for injecting the ADOT sidecar into an ECS Fargate Task Definition:</p>
-                        <pre><code>{
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">{
   "family": "energy-platform-api",
   "requiresCompatibilities": ["FARGATE"],
   "networkMode": "awsvpc",
@@ -321,6 +344,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
     }
   ]
 }</code></pre>
+</div>
 
                         <h4>ECS Rolling Update Mathematics</h4>
                         <p>When updating the container images or configuration, ECS relies on the ECS rolling update deployment type. The safety, speed, and capacity impact of a rolling deployment are dictated entirely by two mathematical parameters: <code>minimumHealthyPercent</code> and <code>maximumPercent</code>.</p>
@@ -360,11 +384,19 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
                         <p>To solve this, ECS natively integrates with Amazon CloudWatch alarms. The operations team provisions an alarm monitoring the Application Load Balancer's <code>TargetResponseTime</code> and <code>HTTPCode_Target_5XX_Count</code> metrics. If the response time breaches an acceptable baseline at any point during the deployment rollout window, the alarm transitions from <code>OK</code> to <code>ALARM</code>.</p>
 
                         <p>The AWS CLI command used by the CI/CD pipeline to initiate this highly resilient deployment mechanism is explicitly detailed below:</p>
-                        <pre><code>aws ecs update-service \
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">aws ecs update-service \
   --cluster energy-platform-cluster \
   --service telemetry-ingestion-api \
   --task-definition energy-api:v2 \
   --deployment-configuration "maximumPercent=200,minimumHealthyPercent=100,deploymentCircuitBreaker={enable=true,rollback=true},alarms={alarmNames=[HighResponseLatencyAlarm, API5xxErrorAlarm],enable=true,rollback=true}"</code></pre>
+</div>
                     </div>
                 </section>
 
@@ -409,17 +441,41 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
                         <p>To achieve true zero-downtime database changes, all migrations must adhere to the Expand-Contract pattern. This methodology breaks down potentially destructive schema changes (such as renaming or splitting a column) into non-breaking, multi-phase deployments, explicitly preventing the need for heavy exclusive table locks that block PostgreSQL read/write operations.</p>
                         
                         <p><strong>Phase 1: Expand (Additive Schema Change)</strong></p>
-                        <pre><code>ALTER TABLE devices ADD COLUMN city VARCHAR(100);
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">ALTER TABLE devices ADD COLUMN city VARCHAR(100);
 ALTER TABLE devices ADD COLUMN zip_code VARCHAR(20);</code></pre>
+</div>
 
                         <p><strong>Phase 2: Migrate (Asynchronous Data Backfill)</strong></p>
-                        <pre><code>UPDATE devices 
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">UPDATE devices 
 SET city = split_part(device_address, ',', 1), 
     zip_code = split_part(device_address, ',', 2) 
 WHERE city IS NULL;</code></pre>
+</div>
 
                         <p><strong>Phase 3: Contract (Cleanup and Deprecation)</strong></p>
-                        <pre><code>ALTER TABLE devices DROP COLUMN device_address;</code></pre>
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">ALTER TABLE devices DROP COLUMN device_address;</code></pre>
+</div>
 
                         <p>A critical operational note: when deploying new indexes to the production PostgreSQL tables, the <code>CONCURRENTLY</code> keyword is absolutely mandatory. Executing a standard <code>CREATE INDEX</code> without this keyword immediately places an exclusive lock on the table, blocking all incoming INSERT and UPDATE statements from the IoT telemetry pipeline until the index finishes building.</p>
                     </div>

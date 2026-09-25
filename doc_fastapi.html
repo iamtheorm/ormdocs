@@ -425,7 +425,14 @@ graph LR
                         <h3>The Deliverable: OpenAPI 3.1 Configuration Generation</h3>
                         <p>To instantiate this comprehensive developer portal, the following Python configuration demonstrates the exact FastAPI implementation required. This code bridges all theoretical concepts discussed—including the lifespan context manager, Pydantic V2 payload generation, RFC 7807 error handling middleware, and the injection of the <code>x-codeSamples</code> vendor extension to force the three-pane layout rendering in Scalar or ReDoc.</p>
 
-                        <pre><code>import time
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import time
 from typing import List, Optional, Any
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, status
@@ -569,6 +576,7 @@ def custom_openapi():
 
 # Override the default schema generation method
 app.openapi = custom_openapi</code></pre>
+</div>
                         
                         <p>When this application is executed, the generated <code>/openapi.json</code> file serves as the definitive, machine-readable contract. Feeding this JSON directly into a Scalar or ReDoc frontend will automatically construct the highly interactive three-pane layout, ensuring that developers are armed with the precise schemas, error handling expectations, and operational context necessary to integrate successfully.</p>
                     </div>

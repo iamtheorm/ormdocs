@@ -146,7 +146,14 @@
                         <h4>Constructing the Virtual Environment</h4>
                         <p>It is highly recommended to construct an isolated virtual environment (using venv or conda) to manage project dependencies. The pipeline is strictly certified for Python 3.8 through Python 3.10.</p>
 
-                        <pre><code># Initialize a pristine virtual environment to prevent system package conflicts
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript"># Initialize a pristine virtual environment to prevent system package conflicts
 python3 -m venv vision_pipeline_env
 
 # Activate the environment (Unix/macOS syntax)
@@ -158,9 +165,18 @@ pip install --upgrade pip
 
 # Install the exact dependency versions certified for the pipeline
 pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
+</div>
 
                         <p>To verify the installation, execute a brief diagnostic script:</p>
-                        <pre><code>python -c "import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</code></pre>
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">python -c "import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</code></pre>
+</div>
                     </div>
                 </section>
 
@@ -171,7 +187,14 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
 
                         <h4>Module 1: The Asynchronous Video Streamer</h4>
                         <p>The <code>VideoStreamer</code> class handles the low-level hardware interfacing. It continuously pulls the latest frame from the webcam inside a daemon thread and places it into a small, tightly controlled queue.</p>
-                        <pre><code>import cv2
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import cv2
 import threading
 import queue
 import time
@@ -225,10 +248,18 @@ class VideoStreamer:
         self.stopped = True
         self.thread.join()
         self.capture.release()</code></pre>
+</div>
 
                         <h4>Module 2: The Asynchronous Inference Engine</h4>
                         <p>The <code>VisionTracker</code> class encapsulates the complex MediaPipe configuration logic. It configures the neural network complexity, initializes the XNNPACK hardware delegate, registers the non-blocking callback, and manages the ingestion of time-stamped visual data.</p>
-                        <pre><code>import mediapipe as mp
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
@@ -277,10 +308,18 @@ class VisionTracker:
             
     def close(self):
         self.landmarker.close()</code></pre>
+</div>
                         
                         <h4>Module 3: The Main Application Orchestrator</h4>
                         <p>The main application thread is now completely liberated from blocking I/O operations and heavy mathematical workloads.</p>
-                        <pre><code>def main():
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">def main():
     print("Initializing Performance-Tuned Vision Pipeline...")
     
     streamer = VideoStreamer(camera_index=0, width=640, height=480)
@@ -335,6 +374,7 @@ class VisionTracker:
 
 if __name__ == "__main__":
     main()</code></pre>
+</div>
                     </div>
                 </section>
 

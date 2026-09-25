@@ -228,7 +228,14 @@ flowchart LR
                     <div class="section-content">
                         <h3>Functional Python Implementation</h3>
                         <p>The following functional Python implementation demonstrates how to build the core orchestration loop for a multi-agent transaction recovery system.</p>
-                        <pre><code>from typing import Annotated, Literal
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">Code</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code class="language-javascript">from typing import Annotated, Literal
 from typing_extensions import NotRequired, TypedDict
 from langchain_core.messages import BaseMessage, AIMessage, ToolMessage, trim_messages
 from langchain_core.tools import tool, ToolRuntime
@@ -344,6 +351,7 @@ builder.add_conditional_edges("audit_agent", route_execution, ["validation_agent
 from langgraph.checkpoint.memory import InMemorySaver
 memory = InMemorySaver()
 app = builder.compile(checkpointer=memory)</code></pre>
+</div>
                     </div>
                 </section>
 

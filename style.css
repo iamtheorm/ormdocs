@@ -865,13 +865,57 @@ body.reader-mode-active .article {
   color: #eab308;
 }
 
-/* Code Blocks Styling Override for Highlight.js */
-.hljs {
-  background: #16181d !important; /* matching dark theme container */
-  padding: 1.5rem !important;
+/* Code Blocks Container */
+.code-block-container {
+  margin: 2rem 0;
   border-radius: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  overflow: hidden;
   border: 1px solid var(--card-border);
+  background: #0b0c10;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.code-block-header {
+  background: #16181d;
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+.code-filename {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+.copy-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #9ca3af;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.2s;
+}
+.copy-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.code-block-container pre {
+  margin: 0;
+}
+.code-block-container .hljs {
+  background: transparent !important;
+  border: none !important;
+  padding: 1.25rem 1.5rem !important;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
