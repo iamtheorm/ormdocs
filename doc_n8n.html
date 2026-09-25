@@ -84,7 +84,7 @@ graph LR
                         <h4>Cryptographic Validation, HMAC, and Schema Normalization</h4>
                         <p>To prevent spoofing attacks, replay vectors, and unauthorized payload injection, every ingress webhook must undergo strict cryptographic signature verification. An embedded Code Node executes native cryptographic routines to validate headers against shared secrets before any downstream processing occurs.</p>
                         
-                        <pre><code class="language-javascript">const crypto = require('crypto');
+                        <pre><code >const crypto = require('crypto');
 
 function validateAndSanitizeWebhook(inputItem) {
     const signature = inputItem.headers['stripe-signature'] || inputItem.headers['x-signature'] || '';

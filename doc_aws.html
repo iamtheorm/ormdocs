@@ -167,7 +167,7 @@ graph LR
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">import time
+  <pre><code >import time
 import random
 from functools import wraps
 from botocore.exceptions import ClientError
@@ -219,7 +219,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">{
+  <pre><code >{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -310,7 +310,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">{
+  <pre><code >{
   "family": "energy-platform-api",
   "requiresCompatibilities": ["FARGATE"],
   "networkMode": "awsvpc",
@@ -391,7 +391,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">aws ecs update-service \
+  <pre><code >aws ecs update-service \
   --cluster energy-platform-cluster \
   --service telemetry-ingestion-api \
   --task-definition energy-api:v2 \
@@ -448,7 +448,7 @@ def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">ALTER TABLE devices ADD COLUMN city VARCHAR(100);
+  <pre><code >ALTER TABLE devices ADD COLUMN city VARCHAR(100);
 ALTER TABLE devices ADD COLUMN zip_code VARCHAR(20);</code></pre>
 </div>
 
@@ -460,7 +460,7 @@ ALTER TABLE devices ADD COLUMN zip_code VARCHAR(20);</code></pre>
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">UPDATE devices 
+  <pre><code >UPDATE devices 
 SET city = split_part(device_address, ',', 1), 
     zip_code = split_part(device_address, ',', 2) 
 WHERE city IS NULL;</code></pre>
@@ -474,7 +474,7 @@ WHERE city IS NULL;</code></pre>
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">ALTER TABLE devices DROP COLUMN device_address;</code></pre>
+  <pre><code >ALTER TABLE devices DROP COLUMN device_address;</code></pre>
 </div>
 
                         <p>A critical operational note: when deploying new indexes to the production PostgreSQL tables, the <code>CONCURRENTLY</code> keyword is absolutely mandatory. Executing a standard <code>CREATE INDEX</code> without this keyword immediately places an exclusive lock on the table, blocking all incoming INSERT and UPDATE statements from the IoT telemetry pipeline until the index finishes building.</p>

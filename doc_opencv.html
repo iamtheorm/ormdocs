@@ -153,7 +153,7 @@
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript"># Initialize a pristine virtual environment to prevent system package conflicts
+  <pre><code ># Initialize a pristine virtual environment to prevent system package conflicts
 python3 -m venv vision_pipeline_env
 
 # Activate the environment (Unix/macOS syntax)
@@ -175,7 +175,7 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">python -c "import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</code></pre>
+  <pre><code >python -c "import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</code></pre>
 </div>
                     </div>
                 </section>
@@ -194,7 +194,7 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">import cv2
+  <pre><code >import cv2
 import threading
 import queue
 import time
@@ -259,7 +259,7 @@ class VideoStreamer:
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">import mediapipe as mp
+  <pre><code >import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
@@ -319,7 +319,7 @@ class VisionTracker:
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code class="language-javascript">def main():
+  <pre><code >def main():
     print("Initializing Performance-Tuned Vision Pipeline...")
     
     streamer = VideoStreamer(camera_index=0, width=640, height=480)
