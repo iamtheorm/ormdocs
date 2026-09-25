@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true, theme: 'dark', fontFamily: 'Inter, sans-serif'});</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="dossier-theme">
     <div class="progress-track"><span id="progress-bar"></span></div>
@@ -227,120 +228,120 @@ flowchart LR
                     <div class="section-content">
                         <h3>Functional Python Implementation</h3>
                         <p>The following functional Python implementation demonstrates how to build the core orchestration loop for a multi-agent transaction recovery system.</p>
-                        <pre><code><span class="token-keyword">from</span> typing <span class="token-keyword">import</span> Annotated, Literal
-<span class="token-keyword">from</span> typing_extensions <span class="token-keyword">import</span> NotRequired, TypedDict
-<span class="token-keyword">from</span> langchain_core.messages <span class="token-keyword">import</span> BaseMessage, AIMessage, ToolMessage, trim_messages
-<span class="token-keyword">from</span> langchain_core.tools <span class="token-keyword">import</span> tool, ToolRuntime
-<span class="token-keyword">from</span> langgraph.graph <span class="token-keyword">import</span> StateGraph, START, END
-<span class="token-keyword">from</span> langgraph.graph.message <span class="token-keyword">import</span> add_messages
-<span class="token-keyword">from</span> langgraph.types <span class="token-keyword">import</span> Command
-<span class="token-keyword">from</span> langchain_openai <span class="token-keyword">import</span> ChatOpenAI
+                        <pre><code>from typing import Annotated, Literal
+from typing_extensions import NotRequired, TypedDict
+from langchain_core.messages import BaseMessage, AIMessage, ToolMessage, trim_messages
+from langchain_core.tools import tool, ToolRuntime
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.types import Command
+from langchain_openai import ChatOpenAI
 
-<span class="token-comment"># 1. Define the Shared State Schema with Reducers</span>
-<span class="token-keyword">class</span> <span class="token-type">MultiAgentState</span>(TypedDict):
-    transaction_id: <span class="token-type">str</span>
-    active_agent: NotRequired[<span class="token-type">str</span>]
-    messages: Annotated[<span class="token-type">list</span>[BaseMessage], add_messages]
-    resolution_status: NotRequired[<span class="token-type">str</span>]
+# 1. Define the Shared State Schema with Reducers
+class MultiAgentState(TypedDict):
+    transaction_id: str
+    active_agent: NotRequired[str]
+    messages: Annotated[list[BaseMessage], add_messages]
+    resolution_status: NotRequired[str]
 
-<span class="token-comment"># 2. Define Handoff Tools using Command.PARENT</span>
+# 2. Define Handoff Tools using Command.PARENT
 @tool
-<span class="token-keyword">def</span> <span class="token-function">transfer_to_audit</span>(runtime: ToolRuntime) -> Command:
-    <span class="token-string">"""Transfer the transaction to the Audit and Compliance agent."""</span>
-    last_ai_message = <span class="token-function">next</span>(
-        msg <span class="token-keyword">for</span> msg <span class="token-keyword">in</span> <span class="token-function">reversed</span>(runtime.state[<span class="token-string">"messages"</span>]) 
-        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(msg, AIMessage) <span class="token-keyword">and</span> msg.tool_calls
+def transfer_to_audit(runtime: ToolRuntime) -> Command:
+    """Transfer the transaction to the Audit and Compliance agent."""
+    last_ai_message = next(
+        msg for msg in reversed(runtime.state["messages"]) 
+        if isinstance(msg, AIMessage) and msg.tool_calls
     )
     
     acknowledgment = ToolMessage(
-        content=<span class="token-string">"Successfully transferred context to Audit Agent."</span>,
+        content="Successfully transferred context to Audit Agent.",
         tool_call_id=runtime.tool_call_id,
     )
     
-    <span class="token-keyword">return</span> Command(
-        goto=<span class="token-string">"audit_agent"</span>,
+    return Command(
+        goto="audit_agent",
         update={
-            <span class="token-string">"active_agent"</span>: <span class="token-string">"audit_agent"</span>,
-            <span class="token-string">"messages"</span>: [last_ai_message, acknowledgment]
+            "active_agent": "audit_agent",
+            "messages": [last_ai_message, acknowledgment]
         },
         graph=Command.PARENT
     )
 
 @tool
-<span class="token-keyword">def</span> <span class="token-function">transfer_to_validation</span>(runtime: ToolRuntime) -> Command:
-    <span class="token-string">"""Transfer the transaction to the Validation agent for ERP data retrieval."""</span>
-    last_ai_message = <span class="token-function">next</span>(
-        msg <span class="token-keyword">for</span> msg <span class="token-keyword">in</span> <span class="token-function">reversed</span>(runtime.state[<span class="token-string">"messages"</span>]) 
-        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(msg, AIMessage) <span class="token-keyword">and</span> msg.tool_calls
+def transfer_to_validation(runtime: ToolRuntime) -> Command:
+    """Transfer the transaction to the Validation agent for ERP data retrieval."""
+    last_ai_message = next(
+        msg for msg in reversed(runtime.state["messages"]) 
+        if isinstance(msg, AIMessage) and msg.tool_calls
     )
     acknowledgment = ToolMessage(
-        content=<span class="token-string">"Successfully transferred context to Validation Agent."</span>,
+        content="Successfully transferred context to Validation Agent.",
         tool_call_id=runtime.tool_call_id,
     )
-    <span class="token-keyword">return</span> Command(
-        goto=<span class="token-string">"validation_agent"</span>,
+    return Command(
+        goto="validation_agent",
         update={
-            <span class="token-string">"active_agent"</span>: <span class="token-string">"validation_agent"</span>,
-            <span class="token-string">"messages"</span>: [last_ai_message, acknowledgment]
+            "active_agent": "validation_agent",
+            "messages": [last_ai_message, acknowledgment]
         },
         graph=Command.PARENT
     )
 
-<span class="token-comment"># 3. Initialize the Engine and Bind Tools</span>
-llm = ChatOpenAI(model=<span class="token-string">"gpt-4o"</span>, temperature=<span class="token-keyword">0</span>)
+# 3. Initialize the Engine and Bind Tools
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
 
 validation_llm = llm.bind_tools([transfer_to_audit])
 audit_llm = llm.bind_tools([transfer_to_validation])
 
-<span class="token-keyword">def</span> <span class="token-function">validation_node</span>(state: MultiAgentState) -> Command:
-    <span class="token-string">"""Node representing the Validation Agent."""</span>
-    trimmed_history = <span class="token-function">trim_messages</span>(
-        state[<span class="token-string">"messages"</span>],
-        max_tokens=<span class="token-keyword">8000</span>,
-        strategy=<span class="token-string">"last"</span>,
-        token_counter=<span class="token-function">len</span>, 
-        start_on=<span class="token-string">"human"</span>,    
-        end_on=(<span class="token-string">"human"</span>, <span class="token-string">"tool"</span>) 
+def validation_node(state: MultiAgentState) -> Command:
+    """Node representing the Validation Agent."""
+    trimmed_history = trim_messages(
+        state["messages"],
+        max_tokens=8000,
+        strategy="last",
+        token_counter=len, 
+        start_on="human",    
+        end_on=("human", "tool") 
     )
     response = validation_llm.invoke(trimmed_history)
-    <span class="token-keyword">return</span> {<span class="token-string">"messages"</span>: [response]}
+    return {"messages": [response]}
 
-<span class="token-keyword">def</span> <span class="token-function">audit_node</span>(state: MultiAgentState) -> Command:
-    <span class="token-string">"""Node representing the Audit Agent."""</span>
-    trimmed_history = <span class="token-function">trim_messages</span>(
-        state[<span class="token-string">"messages"</span>],
-        max_tokens=<span class="token-keyword">8000</span>,
-        strategy=<span class="token-string">"last"</span>,
-        token_counter=<span class="token-function">len</span>,
-        start_on=<span class="token-string">"human"</span>,
-        end_on=(<span class="token-string">"human"</span>, <span class="token-string">"tool"</span>)
+def audit_node(state: MultiAgentState) -> Command:
+    """Node representing the Audit Agent."""
+    trimmed_history = trim_messages(
+        state["messages"],
+        max_tokens=8000,
+        strategy="last",
+        token_counter=len,
+        start_on="human",
+        end_on=("human", "tool")
     )
     response = audit_llm.invoke(trimmed_history)
-    <span class="token-keyword">return</span> {<span class="token-string">"messages"</span>: [response]}
+    return {"messages": [response]}
 
-<span class="token-comment"># 4. Supervisor Routing Logic</span>
-<span class="token-keyword">def</span> <span class="token-function">route_execution</span>(state: MultiAgentState) -> Literal[<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, <span class="token-string">"__end__"</span>]:
-    <span class="token-string">"""Determines the next step based on the active agent's output."""</span>
-    messages = state.get(<span class="token-string">"messages"</span>, [])
-    <span class="token-keyword">if</span> messages:
-        last_msg = messages[-<span class="token-keyword">1</span>]
-        <span class="token-keyword">if</span> <span class="token-function">isinstance</span>(last_msg, AIMessage) <span class="token-keyword">and not</span> last_msg.tool_calls:
-            <span class="token-keyword">return</span> <span class="token-string">"__end__"</span>
+# 4. Supervisor Routing Logic
+def route_execution(state: MultiAgentState) -> Literal["validation_agent", "audit_agent", "__end__"]:
+    """Determines the next step based on the active agent's output."""
+    messages = state.get("messages", [])
+    if messages:
+        last_msg = messages[-1]
+        if isinstance(last_msg, AIMessage) and not last_msg.tool_calls:
+            return "__end__"
             
-    active = state.get(<span class="token-string">"active_agent"</span>, <span class="token-string">"validation_agent"</span>)
-    <span class="token-keyword">return</span> active
+    active = state.get("active_agent", "validation_agent")
+    return active
 
-<span class="token-comment"># 5. Graph Assembly and Compilation</span>
+# 5. Graph Assembly and Compilation
 builder = StateGraph(MultiAgentState)
 
-builder.add_node(<span class="token-string">"validation_agent"</span>, validation_node)
-builder.add_node(<span class="token-string">"audit_agent"</span>, audit_node)
+builder.add_node("validation_agent", validation_node)
+builder.add_node("audit_agent", audit_node)
 
-builder.add_conditional_edges(START, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>])
-builder.add_conditional_edges(<span class="token-string">"validation_agent"</span>, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, END])
-builder.add_conditional_edges(<span class="token-string">"audit_agent"</span>, route_execution, [<span class="token-string">"validation_agent"</span>, <span class="token-string">"audit_agent"</span>, END])
+builder.add_conditional_edges(START, route_execution, ["validation_agent", "audit_agent"])
+builder.add_conditional_edges("validation_agent", route_execution, ["validation_agent", "audit_agent", END])
+builder.add_conditional_edges("audit_agent", route_execution, ["validation_agent", "audit_agent", END])
 
-<span class="token-keyword">from</span> langgraph.checkpoint.memory <span class="token-keyword">import</span> InMemorySaver
+from langgraph.checkpoint.memory import InMemorySaver
 memory = InMemorySaver()
 app = builder.compile(checkpointer=memory)</code></pre>
                     </div>

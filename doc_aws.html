@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true, theme: 'dark', fontFamily: 'Inter, sans-serif'});</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="dossier-theme">
     <div class="progress-track"><span id="progress-bar"></span></div>
@@ -159,37 +160,37 @@ graph LR
 
                         <p>The runbook mandates the deployment of the Full Jitter algorithm across all C-based FreeRTOS edge devices and Python SDKs. Below is the required Python implementation for AWS IoT edge SDKs enforcing exponential backoff with Full Jitter:</p>
 
-                        <pre><code><span class="token-keyword">import</span> time
-<span class="token-keyword">import</span> random
-<span class="token-keyword">from</span> functools <span class="token-keyword">import</span> wraps
-<span class="token-keyword">from</span> botocore.exceptions <span class="token-keyword">import</span> ClientError
+                        <pre><code>import time
+import random
+from functools import wraps
+from botocore.exceptions import ClientError
 
-<span class="token-keyword">def</span> <span class="token-function">retry_with_full_jitter</span>(max_retries=<span class="token-keyword">5</span>, base_delay=<span class="token-keyword">1</span>, max_delay=<span class="token-keyword">60</span>):
-    <span class="token-keyword">def</span> <span class="token-function">decorator</span>(func):
-        @<span class="token-function">wraps</span>(func)
-        <span class="token-keyword">def</span> <span class="token-function">wrapper</span>(*args, **kwargs):
-            retries = <span class="token-keyword">0</span>
-            <span class="token-keyword">while</span> retries &lt; max_retries:
-                <span class="token-keyword">try</span>:
-                    <span class="token-comment"># Attempt the network operation</span>
-                    <span class="token-keyword">return</span> func(*args, **kwargs)
-                <span class="token-keyword">except</span> ClientError <span class="token-keyword">as</span> e:
-                    error_code = e.response[<span class="token-string">'Error'</span>][<span class="token-string">'Code'</span>]
+def retry_with_full_jitter(max_retries=5, base_delay=1, max_delay=60):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            retries = 0
+            while retries &lt; max_retries:
+                try:
+                    # Attempt the network operation
+                    return func(*args, **kwargs)
+                except ClientError as e:
+                    error_code = e.response['Error']['Code']
                     
-                    <span class="token-comment"># Fail fast for deterministic client errors</span>
-                    <span class="token-keyword">if</span> error_code <span class="token-keyword">in</span> [<span class="token-string">'AccessDeniedException'</span>, <span class="token-string">'ValidationException'</span>]:
-                        <span class="token-keyword">raise</span> e
+                    # Fail fast for deterministic client errors
+                    if error_code in ['AccessDeniedException', 'ValidationException']:
+                        raise e
                     
-                    <span class="token-comment"># Apply Full Jitter: random(0, min(cap, base * 2^attempt))</span>
-                    exponential_window = <span class="token-function">min</span>(max_delay, base * (<span class="token-keyword">2</span> ** retries))
-                    sleep_time = random.<span class="token-function">uniform</span>(<span class="token-keyword">0</span>, exponential_window)
+                    # Apply Full Jitter: random(0, min(cap, base * 2^attempt))
+                    exponential_window = min(max_delay, base * (2 ** retries))
+                    sleep_time = random.uniform(0, exponential_window)
                     
-                    time.<span class="token-function">sleep</span>(sleep_time)
-                    retries += <span class="token-keyword">1</span>
+                    time.sleep(sleep_time)
+                    retries += 1
                     
-            <span class="token-keyword">raise</span> Exception(<span class="token-string">"Maximum retries exhausted due to persistent network failures."</span>)
-        <span class="token-keyword">return</span> wrapper
-    <span class="token-keyword">return</span> decorator</code></pre>
+            raise Exception("Maximum retries exhausted due to persistent network failures.")
+        return wrapper
+    return decorator</code></pre>
                     </div>
                 </section>
 
@@ -204,40 +205,40 @@ graph LR
                         
                         <p>An example of a highly restrictive, minimum-privilege S3 bucket policy for the telemetry data lake is provided below:</p>
                         <pre><code>{
-  <span class="token-string">"Version"</span>: <span class="token-string">"2012-10-17"</span>,
-  <span class="token-string">"Statement"</span>: [
+  "Version": "2012-10-17",
+  "Statement": [
     {
-      <span class="token-string">"Sid"</span>: <span class="token-string">"EnforceNetworkPerimeter"</span>,
-      <span class="token-string">"Effect"</span>: <span class="token-string">"Deny"</span>,
-      <span class="token-string">"Principal"</span>: <span class="token-string">"*"</span>,
-      <span class="token-string">"Action"</span>: <span class="token-string">"s3:*"</span>,
-      <span class="token-string">"Resource"</span>: [
-        <span class="token-string">"arn:aws:s3:::energy-optimization-datalake"</span>,
-        <span class="token-string">"arn:aws:s3:::energy-optimization-datalake/*"</span>
+      "Sid": "EnforceNetworkPerimeter",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::energy-optimization-datalake",
+        "arn:aws:s3:::energy-optimization-datalake/*"
       ],
-      <span class="token-string">"Condition"</span>: {
-        <span class="token-string">"StringNotEquals"</span>: {
-          <span class="token-string">"aws:SourceVpc"</span>: <span class="token-string">"vpc-0abcd1234efgh5678"</span>
+      "Condition": {
+        "StringNotEquals": {
+          "aws:SourceVpc": "vpc-0abcd1234efgh5678"
         }
       }
     },
     {
-      <span class="token-string">"Sid"</span>: <span class="token-string">"AllowFirehoseDeliveryStream"</span>,
-      <span class="token-string">"Effect"</span>: <span class="token-string">"Allow"</span>,
-      <span class="token-string">"Principal"</span>: {
-        <span class="token-string">"Service"</span>: <span class="token-string">"firehose.amazonaws.com"</span>
+      "Sid": "AllowFirehoseDeliveryStream",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
       },
-      <span class="token-string">"Action"</span>: [
-        <span class="token-string">"s3:AbortMultipartUpload"</span>,
-        <span class="token-string">"s3:GetBucketLocation"</span>,
-        <span class="token-string">"s3:GetObject"</span>,
-        <span class="token-string">"s3:ListBucket"</span>,
-        <span class="token-string">"s3:ListBucketMultipartUploads"</span>,
-        <span class="token-string">"s3:PutObject"</span>
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:ListBucketMultipartUploads",
+        "s3:PutObject"
       ],
-      <span class="token-string">"Resource"</span>: [
-        <span class="token-string">"arn:aws:s3:::energy-optimization-datalake"</span>,
-        <span class="token-string">"arn:aws:s3:::energy-optimization-datalake/*"</span>
+      "Resource": [
+        "arn:aws:s3:::energy-optimization-datalake",
+        "arn:aws:s3:::energy-optimization-datalake/*"
       ]
     }
   ]
@@ -287,34 +288,34 @@ graph LR
                         <p>Comprehensive observability is non-negotiable for SRE teams tasked with monitoring a distributed microservice architecture. To facilitate distributed tracing and high-resolution metric collection, an AWS Distro for OpenTelemetry (ADOT) sidecar container must be deployed within every ECS Task Definition.</p>
                         <p>The following JSON snippet illustrates the proper structure for injecting the ADOT sidecar into an ECS Fargate Task Definition:</p>
                         <pre><code>{
-  <span class="token-string">"family"</span>: <span class="token-string">"energy-platform-api"</span>,
-  <span class="token-string">"requiresCompatibilities"</span>: [<span class="token-string">"FARGATE"</span>],
-  <span class="token-string">"networkMode"</span>: <span class="token-string">"awsvpc"</span>,
-  <span class="token-string">"cpu"</span>: <span class="token-string">"1024"</span>,
-  <span class="token-string">"memory"</span>: <span class="token-string">"2048"</span>,
-  <span class="token-string">"containerDefinitions"</span>: [
+  "family": "energy-platform-api",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "1024",
+  "memory": "2048",
+  "containerDefinitions": [
     {
-      <span class="token-string">"name"</span>: <span class="token-string">"primary-api-container"</span>,
-      <span class="token-string">"image"</span>: <span class="token-string">"123456789012.dkr.ecr.us-east-1.amazonaws.com/energy-api:v2.1.0"</span>,
-      <span class="token-string">"essential"</span>: <span class="token-keyword">true</span>,
-      <span class="token-string">"portMappings"</span>: [
+      "name": "primary-api-container",
+      "image": "123456789012.dkr.ecr.us-east-1.amazonaws.com/energy-api:v2.1.0",
+      "essential": true,
+      "portMappings": [
         {
-          <span class="token-string">"containerPort"</span>: <span class="token-keyword">8080</span>,
-          <span class="token-string">"protocol"</span>: <span class="token-string">"tcp"</span>
+          "containerPort": 8080,
+          "protocol": "tcp"
         }
       ]
     },
     {
-      <span class="token-string">"name"</span>: <span class="token-string">"aws-otel-collector-sidecar"</span>,
-      <span class="token-string">"image"</span>: <span class="token-string">"public.ecr.aws/aws-observability/aws-otel-collector:latest"</span>,
-      <span class="token-string">"essential"</span>: <span class="token-keyword">true</span>,
-      <span class="token-string">"command"</span>: [
-        <span class="token-string">"--config=/etc/ecs/ecs-default-config.yaml"</span>
+      "name": "aws-otel-collector-sidecar",
+      "image": "public.ecr.aws/aws-observability/aws-otel-collector:latest",
+      "essential": true,
+      "command": [
+        "--config=/etc/ecs/ecs-default-config.yaml"
       ],
-      <span class="token-string">"environment"</span>: [
+      "environment": [
         {
-          <span class="token-string">"name"</span>: <span class="token-string">"AOT_CONFIG_CONTENT"</span>,
-          <span class="token-string">"valueFrom"</span>: <span class="token-string">"arn:aws:ssm:us-east-1:123456789012:parameter/otel-collector-config-production"</span>
+          "name": "AOT_CONFIG_CONTENT",
+          "valueFrom": "arn:aws:ssm:us-east-1:123456789012:parameter/otel-collector-config-production"
         }
       ]
     }
@@ -363,7 +364,7 @@ graph LR
   --cluster energy-platform-cluster \
   --service telemetry-ingestion-api \
   --task-definition energy-api:v2 \
-  --deployment-configuration <span class="token-string">"maximumPercent=200,minimumHealthyPercent=100,deploymentCircuitBreaker={enable=true,rollback=true},alarms={alarmNames=[HighResponseLatencyAlarm, API5xxErrorAlarm],enable=true,rollback=true}"</span></code></pre>
+  --deployment-configuration "maximumPercent=200,minimumHealthyPercent=100,deploymentCircuitBreaker={enable=true,rollback=true},alarms={alarmNames=[HighResponseLatencyAlarm, API5xxErrorAlarm],enable=true,rollback=true}"</code></pre>
                     </div>
                 </section>
 
@@ -408,17 +409,17 @@ graph LR
                         <p>To achieve true zero-downtime database changes, all migrations must adhere to the Expand-Contract pattern. This methodology breaks down potentially destructive schema changes (such as renaming or splitting a column) into non-breaking, multi-phase deployments, explicitly preventing the need for heavy exclusive table locks that block PostgreSQL read/write operations.</p>
                         
                         <p><strong>Phase 1: Expand (Additive Schema Change)</strong></p>
-                        <pre><code><span class="token-keyword">ALTER TABLE</span> devices <span class="token-keyword">ADD COLUMN</span> city <span class="token-type">VARCHAR</span>(<span class="token-keyword">100</span>);
-<span class="token-keyword">ALTER TABLE</span> devices <span class="token-keyword">ADD COLUMN</span> zip_code <span class="token-type">VARCHAR</span>(<span class="token-keyword">20</span>);</code></pre>
+                        <pre><code>ALTER TABLE devices ADD COLUMN city VARCHAR(100);
+ALTER TABLE devices ADD COLUMN zip_code VARCHAR(20);</code></pre>
 
                         <p><strong>Phase 2: Migrate (Asynchronous Data Backfill)</strong></p>
-                        <pre><code><span class="token-keyword">UPDATE</span> devices 
-<span class="token-keyword">SET</span> city = split_part(device_address, <span class="token-string">','</span>, <span class="token-keyword">1</span>), 
-    zip_code = split_part(device_address, <span class="token-string">','</span>, <span class="token-keyword">2</span>) 
-<span class="token-keyword">WHERE</span> city <span class="token-keyword">IS NULL</span>;</code></pre>
+                        <pre><code>UPDATE devices 
+SET city = split_part(device_address, ',', 1), 
+    zip_code = split_part(device_address, ',', 2) 
+WHERE city IS NULL;</code></pre>
 
                         <p><strong>Phase 3: Contract (Cleanup and Deprecation)</strong></p>
-                        <pre><code><span class="token-keyword">ALTER TABLE</span> devices <span class="token-keyword">DROP COLUMN</span> device_address;</code></pre>
+                        <pre><code>ALTER TABLE devices DROP COLUMN device_address;</code></pre>
 
                         <p>A critical operational note: when deploying new indexes to the production PostgreSQL tables, the <code>CONCURRENTLY</code> keyword is absolutely mandatory. Executing a standard <code>CREATE INDEX</code> without this keyword immediately places an exclusive lock on the table, blocking all incoming INSERT and UPDATE statements from the IoT telemetry pipeline until the index finishes building.</p>
                     </div>

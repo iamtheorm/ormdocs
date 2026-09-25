@@ -797,8 +797,10 @@ body.reader-mode-active .article {
 }
 
 [data-theme="light"] .mermaid .nodeLabel,
+[data-theme="light"] .mermaid .nodeLabel *,
 [data-theme="light"] .mermaid text,
-[data-theme="light"] .mermaid .edgeLabel {
+[data-theme="light"] .mermaid .edgeLabel,
+[data-theme="light"] .mermaid .edgeLabel * {
   fill: #ffffff !important;
   color: #ffffff !important;
 }
@@ -810,4 +812,66 @@ body.reader-mode-active .article {
 [data-theme="light"] .mermaid .marker {
   fill: #374151 !important;
   stroke: #374151 !important;
+}
+
+/* Callouts */
+.callout {
+  margin: 2rem 0;
+  border-left: 4px solid var(--accent-color);
+  background: rgba(168, 85, 247, 0.1);
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+}
+
+[data-theme="light"] .callout {
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.callout-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--accent-color);
+  padding: 1.25rem 1.25rem 0.5rem;
+}
+
+.callout-content {
+  padding: 0 1.25rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.callout.tip {
+  border-left-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+[data-theme="light"] .callout.tip {
+  background: rgba(59, 130, 246, 0.05);
+}
+.callout.tip .callout-header {
+  color: #3b82f6;
+}
+
+.callout.warning {
+  border-left-color: #eab308;
+  background: rgba(234, 179, 8, 0.1);
+}
+[data-theme="light"] .callout.warning {
+  background: rgba(234, 179, 8, 0.05);
+}
+.callout.warning .callout-header {
+  color: #eab308;
+}
+
+/* Code Blocks Styling Override for Highlight.js */
+.hljs {
+  background: #16181d !important; /* matching dark theme container */
+  padding: 1.5rem !important;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border: 1px solid var(--card-border);
 }

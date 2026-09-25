@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true, theme: 'dark', fontFamily: 'Inter, sans-serif'});</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="dossier-theme">
     <div class="progress-track"><span id="progress-bar"></span></div>
@@ -150,9 +151,15 @@ graph TD
                         <p>This visual feedback loop relies on the <code>...storyblokEditable(item)</code> spread operator implemented in the Next.js frontend. The <code>storyblokEditable</code> utility parses the hidden <code>_editable</code> JSON property returned by the Storyblok API and attaches specific HTML data attributes (<code>data-blok-c</code> and <code>data-blok-uid</code>) to the Document Object Model (DOM) elements. The Visual Editor bridge reads these injected attributes to draw real-time bounding boxes around the navigation links. When an editor selects a bounding box on the screen, the interface instantly opens the corresponding nested block in the sidebar.</p>
                         <p>Because <code>layout.tsx</code> is an asynchronous Server Component, the visual editor updates upon editor save events or via the Next.js Draft Mode preview URL. Direct, real-time typing reactivity on every keystroke requires client-side state hooks (such as <code>useStoryblokState</code>). Therefore, global root layouts rely on save events to trigger layout re-renders while still maintaining interactive visual bounding boxes and sidebar selection.</p>
                         
-                        <blockquote style="border-left: 4px solid var(--accent-primary); padding-left: 1rem; margin-left: 0; background-color: var(--bg-secondary); padding: 1rem;">
-                            <strong>💡 Tip:</strong> This model protects the API payload. Storyblok limits reference resolutions to a maximum depth of two levels. If you build a deep mega-menu using reference links, the API truncates the returned data. Because this approach uses nested blocks instead of references, the API returns the entire deep menu tree in one single, complete JSON object.
-                        </blockquote>
+                        <div class="callout tip">
+                            <div class="callout-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M12 2a5 5 0 0 0-5 5c0 2.2 1.6 4.1 2.5 6 1.4 2.8 1 5 1 5h3s-.4-2.2 1-5c.9-1.9 2.5-3.8 2.5-6a5 5 0 0 0-5-5z"></path></svg>
+                                Tip
+                            </div>
+                            <div class="callout-content">
+                                This model protects the API payload. Storyblok limits reference resolutions to a maximum depth of two levels. If you build a deep mega-menu using reference links, the API truncates the returned data. Because this approach uses nested blocks instead of references, the API returns the entire deep menu tree in one single, complete JSON object.
+                            </div>
+                        </div>
 
                         <h4>4. Initialize the Storyblok bridge</h4>
                         <p>To enable the real-time visual editing experience, initialize the SDK using a provider component. The <code>@storyblok/react/rsc</code> package provides a <code>storyblokInit</code> function that instantiates the client and loads the Storyblok Bridge for Server Components.</p>
@@ -266,9 +273,15 @@ export async function POST(request: Request) {
                         <p>This component is designated as a client component (<code>"use client"</code>) because it requires browser APIs to manage the interactive state (<code>aria-expanded</code>) of the dropdown menus. Keeping this leaf component on the client while preserving the fetch logic in the server layout optimizes bundle sizing.</p>
                         <p>Define explicit TypeScript interfaces that mirror the Storyblok schema to enforce type safety. To meet production accessibility standards, implement a <code>useEffect</code> hook to manage keyboard and mouse events. If a user tabs into the menu and activates the Escape key, or interacts outside the dropdown container, the active menu panel closes automatically.</p>
                         
-                        <blockquote style="border-left: 4px solid var(--accent-secondary); padding-left: 1rem; margin-left: 0; background-color: var(--bg-secondary); padding: 1rem;">
-                            <strong>⚠️ Note:</strong> WAI-ARIA stands for Web Accessibility Initiative - Accessible Rich Internet Applications.
-                        </blockquote>
+                        <div class="callout warning">
+                            <div class="callout-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                Note
+                            </div>
+                            <div class="callout-content">
+                                WAI-ARIA stands for Web Accessibility Initiative - Accessible Rich Internet Applications.
+                            </div>
+                        </div>
                         
                         <pre><code><strong>// Navigation.tsx</strong>
 "use client";

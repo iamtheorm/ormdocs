@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true, theme: 'dark', fontFamily: 'Inter, sans-serif'});</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="dossier-theme">
     <div class="progress-track"><span id="progress-bar"></span></div>
@@ -424,149 +425,149 @@ graph LR
                         <h3>The Deliverable: OpenAPI 3.1 Configuration Generation</h3>
                         <p>To instantiate this comprehensive developer portal, the following Python configuration demonstrates the exact FastAPI implementation required. This code bridges all theoretical concepts discussed—including the lifespan context manager, Pydantic V2 payload generation, RFC 7807 error handling middleware, and the injection of the <code>x-codeSamples</code> vendor extension to force the three-pane layout rendering in Scalar or ReDoc.</p>
 
-                        <pre><code><span class="token-keyword">import</span> time
-<span class="token-keyword">from</span> typing <span class="token-keyword">import</span> List, Optional, Any
-<span class="token-keyword">from</span> contextlib <span class="token-keyword">import</span> asynccontextmanager
-<span class="token-keyword">from</span> fastapi <span class="token-keyword">import</span> FastAPI, Request, HTTPException, status
-<span class="token-keyword">from</span> fastapi.responses <span class="token-keyword">import</span> JSONResponse
-<span class="token-keyword">from</span> fastapi.openapi.utils <span class="token-keyword">import</span> get_openapi
-<span class="token-keyword">from</span> fastapi.exceptions <span class="token-keyword">import</span> RequestValidationError
-<span class="token-keyword">from</span> pydantic <span class="token-keyword">import</span> BaseModel, Field, ConfigDict
-<span class="token-keyword">from</span> pydantic_core <span class="token-keyword">import</span> ValidationError
+                        <pre><code>import time
+from typing import List, Optional, Any
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
+from fastapi.exceptions import RequestValidationError
+from pydantic import BaseModel, Field, ConfigDict
+from pydantic_core import ValidationError
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># Application Lifespan Management (PostgreSQL & Redis Pools)</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
+# ---------------------------------------------------------
+# Application Lifespan Management (PostgreSQL & Redis Pools)
+# ---------------------------------------------------------
 @asynccontextmanager
-<span class="token-keyword">async def</span> <span class="token-function">app_lifespan</span>(app: FastAPI):
-    <span class="token-comment"># Initialize asyncpg pool with statement_cache_size=0 for PgBouncer compatibility</span>
-    <span class="token-comment"># app.state.db_pool = await asyncpg.create_pool(dsn, statement_cache_size=0)</span>
-    <span class="token-comment"># Initialize Redis connection for JWT revocation blocklist and rate limiting</span>
-    <span class="token-comment"># app.state.redis = await redis.from_url(redis_url)</span>
+async def app_lifespan(app: FastAPI):
+    # Initialize asyncpg pool with statement_cache_size=0 for PgBouncer compatibility
+    # app.state.db_pool = await asyncpg.create_pool(dsn, statement_cache_size=0)
+    # Initialize Redis connection for JWT revocation blocklist and rate limiting
+    # app.state.redis = await redis.from_url(redis_url)
     
-    <span class="token-keyword">yield</span> <span class="token-comment"># Application handles requests during this phase</span>
+    yield # Application handles requests during this phase
     
-    <span class="token-comment"># Graceful teardown of connections to prevent zombie state</span>
-    <span class="token-comment"># await app.state.db_pool.close()</span>
-    <span class="token-comment"># await app.state.redis.close()</span>
+    # Graceful teardown of connections to prevent zombie state
+    # await app.state.db_pool.close()
+    # await app.state.redis.close()
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># FastAPI Initialization</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
+# ---------------------------------------------------------
+# FastAPI Initialization
+# ---------------------------------------------------------
 app = FastAPI(
-    title=<span class="token-string">"AI Inference API Developer Portal"</span>,
-    version=<span class="token-string">"1.2.0"</span>,
-    description=<span class="token-string">"Interactive three-pane API documentation for RAG inference and vector management."</span>,
+    title="AI Inference API Developer Portal",
+    version="1.2.0",
+    description="Interactive three-pane API documentation for RAG inference and vector management.",
     lifespan=app_lifespan,
-    docs_url=<span class="token-keyword">None</span>,  <span class="token-comment"># Disabling default Swagger UI to utilize Scalar/ReDoc externally</span>
-    redoc_url=<span class="token-keyword">None</span>
+    docs_url=None,  # Disabling default Swagger UI to utilize Scalar/ReDoc externally
+    redoc_url=None
 )
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># RFC 7807 Problem Details Global Exception Handlers</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
+# ---------------------------------------------------------
+# RFC 7807 Problem Details Global Exception Handlers
+# ---------------------------------------------------------
 @app.exception_handler(RequestValidationError)
-<span class="token-keyword">async def</span> <span class="token-function">validation_exception_handler</span>(request: Request, exc: RequestValidationError):
-    <span class="token-string">"""
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
     Overrides the default Pydantic V2 validation error array to comply with RFC 7807.
-    """</span>
+    """
     problem_response = {
-        <span class="token-string">"type"</span>: <span class="token-string">"https://api.example.com/errors/validation-error"</span>,
-        <span class="token-string">"title"</span>: <span class="token-string">"Validation Error"</span>,
-        <span class="token-string">"status"</span>: status.HTTP_422_UNPROCESSABLE_ENTITY,
-        <span class="token-string">"detail"</span>: <span class="token-string">"The request payload failed semantic validation constraints."</span>,
-        <span class="token-string">"instance"</span>: <span class="token-function">str</span>(request.url),
-        <span class="token-string">"errors"</span>: exc.errors()  <span class="token-comment"># Attach specific field violations</span>
+        "type": "https://api.example.com/errors/validation-error",
+        "title": "Validation Error",
+        "status": status.HTTP_422_UNPROCESSABLE_ENTITY,
+        "detail": "The request payload failed semantic validation constraints.",
+        "instance": str(request.url),
+        "errors": exc.errors()  # Attach specific field violations
     }
-    <span class="token-keyword">return</span> JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=problem_response)
+    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=problem_response)
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># Pydantic V2 Schemas with OpenAPI Examples</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-keyword">class</span> <span class="token-type">SourceDocument</span>(BaseModel):
-    document_id: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"UUID of the supporting document."</span>)
-    score: <span class="token-type">float</span> = Field(..., description=<span class="token-string">"Cosine similarity score."</span>)
+# ---------------------------------------------------------
+# Pydantic V2 Schemas with OpenAPI Examples
+# ---------------------------------------------------------
+class SourceDocument(BaseModel):
+    document_id: str = Field(..., description="UUID of the supporting document.")
+    score: float = Field(..., description="Cosine similarity score.")
 
-<span class="token-keyword">class</span> <span class="token-type">InferenceRequest</span>(BaseModel):
-    query: <span class="token-type">str</span> = Field(..., min_length=<span class="token-keyword">10</span>, description=<span class="token-string">"The natural language question to be resolved."</span>)
-    confidence_threshold: Optional[<span class="token-type">float</span>] = Field(default=<span class="token-keyword">0.85</span>, ge=<span class="token-keyword">0.0</span>, le=<span class="token-keyword">1.0</span>)
-    max_results: Optional[<span class="token-type">int</span>] = Field(default=<span class="token-keyword">3</span>, le=<span class="token-keyword">10</span>)
+class InferenceRequest(BaseModel):
+    query: str = Field(..., min_length=10, description="The natural language question to be resolved.")
+    confidence_threshold: Optional[float] = Field(default=0.85, ge=0.0, le=1.0)
+    max_results: Optional[int] = Field(default=3, le=10)
     
-    <span class="token-comment"># Injecting OpenAPI payload examples using Pydantic V2 model_config</span>
+    # Injecting OpenAPI payload examples using Pydantic V2 model_config
     model_config = ConfigDict(
         json_schema_extra={
-            <span class="token-string">"examples"</span>: [
+            "examples": [
                 {
-                    <span class="token-string">"query"</span>: <span class="token-string">"What were the primary enterprise software revenue drivers in Q3?"</span>,
-                    <span class="token-string">"confidence_threshold"</span>: <span class="token-keyword">0.88</span>,
-                    <span class="token-string">"max_results"</span>: <span class="token-keyword">3</span>
+                    "query": "What were the primary enterprise software revenue drivers in Q3?",
+                    "confidence_threshold": 0.88,
+                    "max_results": 3
                 }
             ]
         }
     )
 
-<span class="token-keyword">class</span> <span class="token-type">InferenceResponse</span>(BaseModel):
-    inference_id: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"Unique execution trace ID."</span>)
-    answer: <span class="token-type">str</span> = Field(..., description=<span class="token-string">"The synthesized response generated by the LLM."</span>)
-    sources: List[SourceDocument] = Field(default_factory=<span class="token-keyword">list</span>)
-    processing_time_ms: <span class="token-type">int</span> = Field(..., description=<span class="token-string">"Pipeline latency in milliseconds."</span>)
+class InferenceResponse(BaseModel):
+    inference_id: str = Field(..., description="Unique execution trace ID.")
+    answer: str = Field(..., description="The synthesized response generated by the LLM.")
+    sources: List[SourceDocument] = Field(default_factory=list)
+    processing_time_ms: int = Field(..., description="Pipeline latency in milliseconds.")
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># API Endpoints</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
-@app.post(<span class="token-string">"/api/v1/inference/query"</span>, response_model=InferenceResponse, tags=[<span class="token-string">"Inference"</span>])
-<span class="token-keyword">async def</span> <span class="token-function">execute_query</span>(request: InferenceRequest):
-    <span class="token-string">"""
+# ---------------------------------------------------------
+# API Endpoints
+# ---------------------------------------------------------
+@app.post("/api/v1/inference/query", response_model=InferenceResponse, tags=["Inference"])
+async def execute_query(request: InferenceRequest):
+    """
     Executes a high-latency RAG query against the PostgreSQL HNSW index.
-    """</span>
-    <span class="token-comment"># In production, this would offload to a Celery worker to avoid blocking the event loop.</span>
-    <span class="token-keyword">return</span> InferenceResponse(
-        inference_id=<span class="token-string">"inf_993a4b"</span>,
-        answer=<span class="token-string">"The primary drivers were cloud infrastructure and enterprise subscriptions."</span>,
-        sources=[SourceDocument(document_id=<span class="token-string">"doc_8f73b1a2"</span>, score=<span class="token-keyword">0.92</span>)],
-        processing_time_ms=<span class="token-keyword">340</span>
+    """
+    # In production, this would offload to a Celery worker to avoid blocking the event loop.
+    return InferenceResponse(
+        inference_id="inf_993a4b",
+        answer="The primary drivers were cloud infrastructure and enterprise subscriptions.",
+        sources=[SourceDocument(document_id="doc_8f73b1a2", score=0.92)],
+        processing_time_ms=340
     )
 
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-comment"># OpenAPI Schema Generator & x-codeSamples Injection</span>
-<span class="token-comment"># ---------------------------------------------------------</span>
-<span class="token-keyword">def</span> <span class="token-function">custom_openapi</span>():
-    <span class="token-keyword">if</span> app.openapi_schema:
-        <span class="token-keyword">return</span> app.openapi_schema
+# ---------------------------------------------------------
+# OpenAPI Schema Generator & x-codeSamples Injection
+# ---------------------------------------------------------
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
         
-    openapi_schema = <span class="token-function">get_openapi</span>(
-        title=<span class="token-string">"AI Inference API"</span>,
-        version=<span class="token-string">"1.2.0"</span>,
-        description=<span class="token-string">"Contract-first API Portal demonstrating three-pane layout configuration."</span>,
+    openapi_schema = get_openapi(
+        title="AI Inference API",
+        version="1.2.0",
+        description="Contract-first API Portal demonstrating three-pane layout configuration.",
         routes=app.routes,
     )
     
-    <span class="token-comment"># Inject x-codeSamples vendor extension to populate the right-hand pane in Scalar/ReDoc</span>
-    <span class="token-keyword">if</span> <span class="token-string">"/api/v1/inference/query"</span> <span class="token-keyword">in</span> openapi_schema[<span class="token-string">"paths"</span>]:
-        openapi_schema[<span class="token-string">"paths"</span>][<span class="token-string">"/api/v1/inference/query"</span>][<span class="token-string">"post"</span>][<span class="token-string">"x-codeSamples"</span>] = [
+    # Inject x-codeSamples vendor extension to populate the right-hand pane in Scalar/ReDoc
+    if "/api/v1/inference/query" in openapi_schema["paths"]:
+        openapi_schema["paths"]["/api/v1/inference/query"]["post"]["x-codeSamples"] = [
             {
-                <span class="token-string">"lang"</span>: <span class="token-string">"cURL"</span>,
-                <span class="token-string">"label"</span>: <span class="token-string">"cURL CLI"</span>,
-                <span class="token-string">"source"</span>: <span class="token-string">"curl -X POST https://api.example.com/api/v1/inference/query \\\n"</span>
-                          <span class="token-string">"  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \\\n"</span>
-                          <span class="token-string">"  -H 'Content-Type: application/json' \\\n"</span>
-                          <span class="token-string">"  -d '{\"query\": \"What were the primary revenue drivers?\", \"max_results\": 3}'"</span>
+                "lang": "cURL",
+                "label": "cURL CLI",
+                "source": "curl -X POST https://api.example.com/api/v1/inference/query \\\n"
+                          "  -H 'Authorization: Bearer YOUR_JWT_TOKEN' \\\n"
+                          "  -H 'Content-Type: application/json' \\\n"
+                          "  -d '{\"query\": \"What were the primary revenue drivers?\", \"max_results\": 3}'"
             },
             {
-                <span class="token-string">"lang"</span>: <span class="token-string">"Python"</span>,
-                <span class="token-string">"label"</span>: <span class="token-string">"Python (HTTPX)"</span>,
-                <span class="token-string">"source"</span>: <span class="token-string">"import httpx\n\n"</span>
-                          <span class="token-string">"headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}\n"</span>
-                          <span class="token-string">"payload = {'query': 'What were the primary revenue drivers?', 'max_results': 3}\n"</span>
-                          <span class="token-string">"response = httpx.post('https://api.example.com/api/v1/inference/query', json=payload, headers=headers)\n"</span>
-                          <span class="token-string">"print(response.json())"</span>
+                "lang": "Python",
+                "label": "Python (HTTPX)",
+                "source": "import httpx\n\n"
+                          "headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}\n"
+                          "payload = {'query': 'What were the primary revenue drivers?', 'max_results': 3}\n"
+                          "response = httpx.post('https://api.example.com/api/v1/inference/query', json=payload, headers=headers)\n"
+                          "print(response.json())"
             }
         ]
         
     app.openapi_schema = openapi_schema
-    <span class="token-keyword">return</span> app.openapi_schema
+    return app.openapi_schema
 
-<span class="token-comment"># Override the default schema generation method</span>
+# Override the default schema generation method
 app.openapi = custom_openapi</code></pre>
                         
                         <p>When this application is executed, the generated <code>/openapi.json</code> file serves as the definitive, machine-readable contract. Feeding this JSON directly into a Scalar or ReDoc frontend will automatically construct the highly interactive three-pane layout, ensuring that developers are armed with the precise schemas, error handling expectations, and operational context necessary to integrate successfully.</p>

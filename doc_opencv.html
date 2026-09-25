@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true, theme: 'dark', fontFamily: 'Inter, sans-serif'});</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="dossier-theme">
     <div class="progress-track"><span id="progress-bar"></span></div>
@@ -145,21 +146,21 @@
                         <h4>Constructing the Virtual Environment</h4>
                         <p>It is highly recommended to construct an isolated virtual environment (using venv or conda) to manage project dependencies. The pipeline is strictly certified for Python 3.8 through Python 3.10.</p>
 
-                        <pre><code><span class="token-comment"># Initialize a pristine virtual environment to prevent system package conflicts</span>
+                        <pre><code># Initialize a pristine virtual environment to prevent system package conflicts
 python3 -m venv vision_pipeline_env
 
-<span class="token-comment"># Activate the environment (Unix/macOS syntax)</span>
+# Activate the environment (Unix/macOS syntax)
 source vision_pipeline_env/bin/activate  
-<span class="token-comment"># On Windows environments, utilize: vision_pipeline_env\Scripts\activate</span>
+# On Windows environments, utilize: vision_pipeline_env\Scripts\activate
 
-<span class="token-comment"># Upgrade the Python package installer to ensure wheel compatibility</span>
+# Upgrade the Python package installer to ensure wheel compatibility
 pip install --upgrade pip
 
-<span class="token-comment"># Install the exact dependency versions certified for the pipeline</span>
+# Install the exact dependency versions certified for the pipeline
 pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
 
                         <p>To verify the installation, execute a brief diagnostic script:</p>
-                        <pre><code>python -c <span class="token-string">"import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</span></code></pre>
+                        <pre><code>python -c "import mediapipe as mp; import cv2; print(f'MediaPipe Version: {mp.__version__} | OpenCV Version: {cv2.__version__}')"</code></pre>
                     </div>
                 </section>
 
@@ -170,80 +171,80 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
 
                         <h4>Module 1: The Asynchronous Video Streamer</h4>
                         <p>The <code>VideoStreamer</code> class handles the low-level hardware interfacing. It continuously pulls the latest frame from the webcam inside a daemon thread and places it into a small, tightly controlled queue.</p>
-                        <pre><code><span class="token-keyword">import</span> cv2
-<span class="token-keyword">import</span> threading
-<span class="token-keyword">import</span> queue
-<span class="token-keyword">import</span> time
-<span class="token-keyword">import</span> sys
+                        <pre><code>import cv2
+import threading
+import queue
+import time
+import sys
 
-<span class="token-keyword">class</span> <span class="token-type">VideoStreamer</span>:
-    <span class="token-string">"""
+class VideoStreamer:
+    """
     A dedicated background thread for hardware video acquisition, designed to 
     eliminate USB buffer bloat and prevent the GIL from blocking AI inference.
-    """</span>
-    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, camera_index=<span class="token-keyword">0</span>, width=<span class="token-keyword">640</span>, height=<span class="token-keyword">480</span>):
-        <span class="token-keyword">self</span>.capture = cv2.VideoCapture(camera_index)
+    """
+    def __init__(self, camera_index=0, width=640, height=480):
+        self.capture = cv2.VideoCapture(camera_index)
         
-        <span class="token-keyword">self</span>.capture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        <span class="token-keyword">self</span>.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        <span class="token-comment"># Force the OS driver to maintain a maximum buffer of 1 frame</span>
-        <span class="token-keyword">self</span>.capture.set(cv2.CAP_PROP_BUFFERSIZE, <span class="token-keyword">1</span>) 
-        <span class="token-keyword">self</span>.capture.set(cv2.CAP_PROP_FPS, <span class="token-keyword">30</span>)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+        # Force the OS driver to maintain a maximum buffer of 1 frame
+        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1) 
+        self.capture.set(cv2.CAP_PROP_FPS, 30)
         
-        <span class="token-keyword">if not</span> <span class="token-keyword">self</span>.capture.isOpened():
-            <span class="token-function">print</span>(<span class="token-string">"CRITICAL ERROR: Hardware video stream failed to initialize."</span>)
-            sys.exit(<span class="token-keyword">1</span>)
+        if not self.capture.isOpened():
+            print("CRITICAL ERROR: Hardware video stream failed to initialize.")
+            sys.exit(1)
             
-        <span class="token-keyword">self</span>.frame_queue = queue.Queue(maxsize=<span class="token-keyword">1</span>)
-        <span class="token-keyword">self</span>.stopped = <span class="token-keyword">False</span>
+        self.frame_queue = queue.Queue(maxsize=1)
+        self.stopped = False
         
-        <span class="token-keyword">self</span>.thread = threading.Thread(target=<span class="token-keyword">self</span>._update, daemon=<span class="token-keyword">True</span>)
-        <span class="token-keyword">self</span>.thread.start()
+        self.thread = threading.Thread(target=self._update, daemon=True)
+        self.thread.start()
 
-    <span class="token-keyword">def</span> <span class="token-function">_update</span>(<span class="token-keyword">self</span>):
-        <span class="token-keyword">while not</span> <span class="token-keyword">self</span>.stopped:
-            success, frame = <span class="token-keyword">self</span>.capture.read()
-            <span class="token-keyword">if not</span> success:
-                <span class="token-keyword">continue</span>
+    def _update(self):
+        while not self.stopped:
+            success, frame = self.capture.read()
+            if not success:
+                continue
                 
-            <span class="token-keyword">if</span> <span class="token-keyword">self</span>.frame_queue.full():
-                <span class="token-keyword">try</span>:
-                    <span class="token-keyword">self</span>.frame_queue.get_nowait()
-                <span class="token-keyword">except</span> queue.Empty:
-                    <span class="token-keyword">pass</span>
+            if self.frame_queue.full():
+                try:
+                    self.frame_queue.get_nowait()
+                except queue.Empty:
+                    pass
             
-            <span class="token-keyword">self</span>.frame_queue.put(frame)
+            self.frame_queue.put(frame)
 
-    <span class="token-keyword">def</span> <span class="token-function">read</span>(<span class="token-keyword">self</span>):
-        <span class="token-keyword">try</span>:
-            <span class="token-keyword">return True</span>, <span class="token-keyword">self</span>.frame_queue.get(timeout=<span class="token-keyword">0.5</span>)
-        <span class="token-keyword">except</span> queue.Empty:
-            <span class="token-keyword">return False</span>, <span class="token-keyword">None</span>
+    def read(self):
+        try:
+            return True, self.frame_queue.get(timeout=0.5)
+        except queue.Empty:
+            return False, None
 
-    <span class="token-keyword">def</span> <span class="token-function">stop</span>(<span class="token-keyword">self</span>):
-        <span class="token-keyword">self</span>.stopped = <span class="token-keyword">True</span>
-        <span class="token-keyword">self</span>.thread.join()
-        <span class="token-keyword">self</span>.capture.release()</code></pre>
+    def stop(self):
+        self.stopped = True
+        self.thread.join()
+        self.capture.release()</code></pre>
 
                         <h4>Module 2: The Asynchronous Inference Engine</h4>
                         <p>The <code>VisionTracker</code> class encapsulates the complex MediaPipe configuration logic. It configures the neural network complexity, initializes the XNNPACK hardware delegate, registers the non-blocking callback, and manages the ingestion of time-stamped visual data.</p>
-                        <pre><code><span class="token-keyword">import</span> mediapipe <span class="token-keyword">as</span> mp
-<span class="token-keyword">from</span> mediapipe.tasks <span class="token-keyword">import</span> python
-<span class="token-keyword">from</span> mediapipe.tasks.python <span class="token-keyword">import</span> vision
+                        <pre><code>import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-<span class="token-keyword">class</span> <span class="token-type">VisionTracker</span>:
-    <span class="token-keyword">def</span> <span class="token-function">__init__</span>(<span class="token-keyword">self</span>, model_path=<span class="token-string">'hand_landmarker.task'</span>, max_hands=<span class="token-keyword">2</span>):
-        <span class="token-keyword">self</span>.result_queue = queue.Queue(maxsize=<span class="token-keyword">2</span>)
+class VisionTracker:
+    def __init__(self, model_path='hand_landmarker.task', max_hands=2):
+        self.result_queue = queue.Queue(maxsize=2)
         
-        <span class="token-keyword">def</span> <span class="token-function">_result_callback</span>(result: vision.HandLandmarkerResult, 
+        def _result_callback(result: vision.HandLandmarkerResult, 
                              output_image: mp.Image, 
-                             timestamp_ms: <span class="token-type">int</span>):
-            <span class="token-keyword">if</span> <span class="token-keyword">self</span>.result_queue.full():
-                <span class="token-keyword">try</span>:
-                    <span class="token-keyword">self</span>.result_queue.get_nowait()
-                <span class="token-keyword">except</span> queue.Empty:
-                    <span class="token-keyword">pass</span>
-            <span class="token-keyword">self</span>.result_queue.put(result)
+                             timestamp_ms: int):
+            if self.result_queue.full():
+                try:
+                    self.result_queue.get_nowait()
+                except queue.Empty:
+                    pass
+            self.result_queue.put(result)
 
         base_options = python.BaseOptions(
             model_asset_path=model_path,
@@ -254,85 +255,85 @@ pip install opencv-python==4.8.1.78 mediapipe==0.10.9 numpy==1.26.4</code></pre>
             base_options=base_options,
             running_mode=vision.RunningMode.LIVE_STREAM,
             num_hands=max_hands,
-            min_hand_detection_confidence=<span class="token-keyword">0.5</span>,
-            min_hand_presence_confidence=<span class="token-keyword">0.5</span>,
-            min_tracking_confidence=<span class="token-keyword">0.5</span>,
+            min_hand_detection_confidence=0.5,
+            min_hand_presence_confidence=0.5,
+            min_tracking_confidence=0.5,
             result_callback=_result_callback
         )
         
-        <span class="token-keyword">self</span>.landmarker = vision.HandLandmarker.create_from_options(options)
+        self.landmarker = vision.HandLandmarker.create_from_options(options)
 
-    <span class="token-keyword">def</span> <span class="token-function">process_async</span>(<span class="token-keyword">self</span>, cv_frame):
+    def process_async(self, cv_frame):
         rgb_frame = cv2.cvtColor(cv_frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-        timestamp_ms = <span class="token-function">int</span>(time.time() * <span class="token-keyword">1000</span>)
-        <span class="token-keyword">self</span>.landmarker.detect_async(mp_image, timestamp_ms)
+        timestamp_ms = int(time.time() * 1000)
+        self.landmarker.detect_async(mp_image, timestamp_ms)
 
-    <span class="token-keyword">def</span> <span class="token-function">get_latest_result</span>(<span class="token-keyword">self</span>):
-        <span class="token-keyword">try</span>:
-            <span class="token-keyword">return self</span>.result_queue.get_nowait()
-        <span class="token-keyword">except</span> queue.Empty:
-            <span class="token-keyword">return None</span>
+    def get_latest_result(self):
+        try:
+            return self.result_queue.get_nowait()
+        except queue.Empty:
+            return None
             
-    <span class="token-keyword">def</span> <span class="token-function">close</span>(<span class="token-keyword">self</span>):
-        <span class="token-keyword">self</span>.landmarker.close()</code></pre>
+    def close(self):
+        self.landmarker.close()</code></pre>
                         
                         <h4>Module 3: The Main Application Orchestrator</h4>
                         <p>The main application thread is now completely liberated from blocking I/O operations and heavy mathematical workloads.</p>
-                        <pre><code><span class="token-keyword">def</span> <span class="token-function">main</span>():
-    <span class="token-function">print</span>(<span class="token-string">"Initializing Performance-Tuned Vision Pipeline..."</span>)
+                        <pre><code>def main():
+    print("Initializing Performance-Tuned Vision Pipeline...")
     
-    streamer = VideoStreamer(camera_index=<span class="token-keyword">0</span>, width=<span class="token-keyword">640</span>, height=<span class="token-keyword">480</span>)
-    tracker = VisionTracker(model_path=<span class="token-string">'hand_landmarker.task'</span>)
+    streamer = VideoStreamer(camera_index=0, width=640, height=480)
+    tracker = VisionTracker(model_path='hand_landmarker.task')
     
-    frame_count = <span class="token-keyword">0</span>
+    frame_count = 0
     start_time = time.time()
-    current_fps = <span class="token-keyword">0</span>
+    current_fps = 0
     
-    <span class="token-keyword">try</span>:
-        <span class="token-keyword">while True</span>:
+    try:
+        while True:
             success, frame = streamer.read()
-            <span class="token-keyword">if not</span> success <span class="token-keyword">or</span> frame <span class="token-keyword">is None</span>:
-                <span class="token-keyword">continue</span>
+            if not success or frame is None:
+                continue
                 
             tracker.process_async(frame)
             result = tracker.get_latest_result()
             
-            <span class="token-keyword">if</span> result <span class="token-keyword">and</span> result.hand_landmarks:
-                <span class="token-keyword">for</span> hand_landmarks <span class="token-keyword">in</span> result.hand_landmarks:
-                    index_finger = hand_landmarks[<span class="token-keyword">8</span>]
+            if result and result.hand_landmarks:
+                for hand_landmarks in result.hand_landmarks:
+                    index_finger = hand_landmarks[8]
                     h, w, c = frame.shape
-                    cx, cy = <span class="token-function">int</span>(index_finger.x * w), <span class="token-function">int</span>(index_finger.y * h)
+                    cx, cy = int(index_finger.x * w), int(index_finger.y * h)
                     
-                    cv2.circle(frame, (cx, cy), <span class="token-keyword">12</span>, (<span class="token-keyword">0</span>, <span class="token-keyword">255</span>, <span class="token-keyword">0</span>), cv2.FILLED)
+                    cv2.circle(frame, (cx, cy), 12, (0, 255, 0), cv2.FILLED)
                     
-                    depth_text = <span class="token-string">f"Z-Depth: {index_finger.z:.4f}"</span>
-                    cv2.putText(frame, depth_text, (cx + <span class="token-keyword">20</span>, cy), 
-                                cv2.FONT_HERSHEY_SIMPLEX, <span class="token-keyword">0.6</span>, (<span class="token-keyword">0</span>, <span class="token-keyword">255</span>, <span class="token-keyword">0</span>), <span class="token-keyword">2</span>)
+                    depth_text = f"Z-Depth: {index_finger.z:.4f}"
+                    cv2.putText(frame, depth_text, (cx + 20, cy), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            frame_count += <span class="token-keyword">1</span>
+            frame_count += 1
             elapsed_time = time.time() - start_time
-            <span class="token-keyword">if</span> elapsed_time > <span class="token-keyword">1.0</span>:
+            if elapsed_time > 1.0:
                 current_fps = frame_count / elapsed_time
-                frame_count = <span class="token-keyword">0</span>
+                frame_count = 0
                 start_time = time.time()
                 
-            fps_text = <span class="token-string">f"Pipeline Throughput: {current_fps:.1f} FPS"</span>
-            cv2.putText(frame, fps_text, (<span class="token-keyword">10</span>, <span class="token-keyword">30</span>), 
-                        cv2.FONT_HERSHEY_SIMPLEX, <span class="token-keyword">1</span>, (<span class="token-keyword">255</span>, <span class="token-keyword">0</span>, <span class="token-keyword">0</span>), <span class="token-keyword">2</span>)
+            fps_text = f"Pipeline Throughput: {current_fps:.1f} FPS"
+            cv2.putText(frame, fps_text, (10, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
             
-            cv2.imshow(<span class="token-string">"Real-Time Tracking Engine"</span>, frame)
+            cv2.imshow("Real-Time Tracking Engine", frame)
             
-            <span class="token-keyword">if</span> cv2.waitKey(<span class="token-keyword">1</span>) & 0xFF == <span class="token-function">ord</span>(<span class="token-string">'q'</span>):
-                <span class="token-keyword">break</span>
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
                 
-    <span class="token-keyword">finally</span>:
-        <span class="token-function">print</span>(<span class="token-string">"Executing graceful pipeline shutdown..."</span>)
+    finally:
+        print("Executing graceful pipeline shutdown...")
         streamer.stop()
         tracker.close()
         cv2.destroyAllWindows()
 
-<span class="token-keyword">if</span> __name__ == <span class="token-string">"__main__"</span>:
+if __name__ == "__main__":
     main()</code></pre>
                     </div>
                 </section>
