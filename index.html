@@ -55,6 +55,8 @@
             
             <div class="portfolio-grid">
                 
+
+
                 <!-- Sample 1: LangGraph -->
                 <a href="doc_langgraph.html" class="portfolio-item">
                     <div class="portfolio-thumbnail">
@@ -191,6 +193,27 @@ def create_query(payload: dict):
                     <div class="portfolio-content">
                         <h4>Autonomous Multi-Agent APIs</h4>
                         <p>Event-driven workflows, interactive API gateways, and distributed idempotency patterns.</p>
+                    </div>
+                </a>
+
+                <!-- Sample 7: Storyblok Next.js -->
+                <a href="doc_storyblok.html" class="portfolio-item">
+                    <div class="portfolio-thumbnail">
+                        <div class="thumbnail-code">
+import { storyblokInit, apiPlugin } from "@storyblok/react/rsc";
+
+storyblokInit({
+  accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN,
+  use: [apiPlugin],
+});
+                        </div>
+                        <div class="thumbnail-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2z"></path></svg>
+                        </div>
+                    </div>
+                    <div class="portfolio-content">
+                        <h4>Global Components with Storyblok</h4>
+                        <p>Architecting scalable, headless navigation and site-wide state using Storyblok blocks and the Next.js App Router.</p>
                     </div>
                 </a>
 
