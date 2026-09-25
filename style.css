@@ -787,7 +787,27 @@ body.reader-mode-active .article {
   background: transparent;
 }
 
-/* Invert Mermaid for Light Mode */
-[data-theme="light"] .mermaid svg {
-  filter: invert(1) hue-rotate(180deg);
+/* Fix Mermaid in Light Mode */
+[data-theme="light"] .mermaid .node rect,
+[data-theme="light"] .mermaid .node circle,
+[data-theme="light"] .mermaid .node polygon,
+[data-theme="light"] .mermaid .cluster rect {
+  fill: #1f2937 !important;
+  stroke: #374151 !important;
+}
+
+[data-theme="light"] .mermaid .nodeLabel,
+[data-theme="light"] .mermaid text,
+[data-theme="light"] .mermaid .edgeLabel {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .mermaid .edgePath .path {
+  stroke: #374151 !important;
+}
+
+[data-theme="light"] .mermaid .marker {
+  fill: #374151 !important;
+  stroke: #374151 !important;
 }
