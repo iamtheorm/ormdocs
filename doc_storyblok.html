@@ -79,6 +79,16 @@ graph TD
                             <li>A registered Storyblok space with a designated development token.</li>
                             <li>The official React SDK installed in your project.</li>
                         </ul>
+                        <p>Additionally, ensure your Storyblok access token is defined in your <code>.env.local</code> file so both the bridge and the layout fetch can authenticate:</p>
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">.env.local</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code >NEXT_PUBLIC_STORYBLOK_TOKEN=your_preview_token_here</code></pre>
+</div>
                         <p>To install the SDK, run the following command in your terminal:</p>
                         <div class="code-block-container">
   <div class="code-block-header">
@@ -246,6 +256,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         &lt;body className="antialiased text-gray-900 bg-white"&gt;
           &lt;header className="w-full p-6 border-b border-gray-200"&gt;
             &lt;nav className="max-w-5xl mx-auto flex justify-between items-center"&gt;
+              {headerData?.logo?.filename &amp;&amp; (
+                &lt;img src={headerData.logo.filename} alt="Site Logo" className="h-8 w-auto" /&gt;
+              )}
               {headerData ? (
                 &lt;Navigation items={headerData.nav_items} /&gt;
               ) : (
@@ -265,6 +278,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       &lt;/StoryblokProvider&gt;
     &lt;/html&gt;
   );
+}</code></pre>
+</div>
+
+                        <p>To make this fully functional inside the Storyblok Visual Editor iframe, ensure you have a simple Next.js draft mode route handler to toggle the preview session:</p>
+                        
+                        <div class="code-block-container">
+  <div class="code-block-header">
+    <span class="code-filename">app/api/draft/route.ts</span>
+    <button class="copy-btn">
+       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+    </button>
+  </div>
+  <pre><code >import { draftMode } from "next/headers";
+
+export async function GET() {
+  const draft = await draftMode();
+  draft.enable();
+  return new Response("Draft mode enabled");
 }</code></pre>
 </div>
 
