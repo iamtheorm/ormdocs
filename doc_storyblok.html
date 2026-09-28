@@ -79,16 +79,20 @@ graph TD
                             <li>A registered Storyblok space with a designated development token.</li>
                             <li>The official React SDK installed in your project.</li>
                         </ul>
-                        <p>Additionally, ensure your Storyblok access token is defined in your <code>.env.local</code> file so both the bridge and the layout fetch can authenticate:</p>
+                        <h4>1. Initialize Your Next.js Project</h4>
+                        <p>Open your terminal and run the following command to create a brand new Next.js 15 application. Press Enter to accept the default prompts (TypeScript, Tailwind CSS, App Router).</p>
                         <div class="code-block-container">
   <div class="code-block-header">
-    <span class="code-filename">.env.local</span>
+    <span class="code-filename">Bash</span>
     <button class="copy-btn">
        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
     </button>
   </div>
-  <pre><code >NEXT_PUBLIC_STORYBLOK_TOKEN=your_preview_token_here</code></pre>
+  <pre><code >npx create-next-app@latest my-storyblok-site
+cd my-storyblok-site</code></pre>
 </div>
+
+                        <h4>2. Install the Storyblok SDK</h4>
                         <p>To install the SDK, run the following command in your terminal:</p>
                         <div class="code-block-container">
   <div class="code-block-header">
@@ -101,6 +105,25 @@ graph TD
 </div>
                         <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
                             📸 SCREENSHOT PLACEHOLDER: Terminal output showing the successful installation of the @storyblok/react package
+                        </div>
+
+                        <div class="callout warning">
+                            <div class="callout-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                Note: Environment Configuration
+                            </div>
+                            <div class="callout-content">
+                                <p style="margin-top: 0;">To allow the Next.js frontend to securely communicate with the Storyblok API, you must configure your preview token. Create a <code>.env.local</code> file in the root of your Next.js project and add your space's access token:</p>
+                                <div class="code-block-container" style="margin-bottom: 0;">
+                                  <div class="code-block-header">
+                                    <span class="code-filename">Plaintext</span>
+                                    <button class="copy-btn">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy
+                                    </button>
+                                  </div>
+                                  <pre><code >NEXT_PUBLIC_STORYBLOK_TOKEN=your_preview_token_here</code></pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
