@@ -103,9 +103,10 @@ cd my-storyblok-site</code></pre>
   </div>
   <pre><code >npm install @storyblok/react</code></pre>
 </div>
-                        <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
-                            📸 SCREENSHOT PLACEHOLDER: Terminal output showing the successful installation of the @storyblok/react package
-                        </div>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.09.30_2.png" alt="Terminal output showing successful installation" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Reference: The expected terminal output confirming the successful npm installation of the <code>@storyblok/react</code> SDK.</figcaption>
+                        </figure>
 
                         <div class="callout warning">
                             <div class="callout-header">
@@ -125,6 +126,10 @@ cd my-storyblok-site</code></pre>
                                 </div>
                             </div>
                         </div>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.03.11_2.jpg" alt="Storyblok Settings dashboard" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Reference: The Storyblok Settings dashboard. This view highlights exactly where to locate your Space ID and configure the visual editor.</figcaption>
+                        </figure>
                     </div>
                 </section>
 
@@ -141,9 +146,10 @@ cd my-storyblok-site</code></pre>
                             <li>Set the story slug to <code>/settings/global</code>.</li>
                         </ol>
                         <p>This dedicated entry acts as the central hub for the application's layout. Because this story manages site-wide configurations, it's also the ideal location to house default search engine optimization (SEO) metadata, such as fallback meta descriptions, Open Graph images, or global favicon assets.</p>
-                        <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
-                            📸 SCREENSHOT PLACEHOLDER: The Global Settings story open in the Storyblok Visual Editor, showing the blank configuration page.
-                        </div>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.19.53_2.jpg" alt="New Content Story modal" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Reference: The "New Content Story" modal. This demonstrates how to properly configure the "Global" settings story with the correct slug and content type.</figcaption>
+                        </figure>
 
                         <h4>2. Build the content model</h4>
                         <p>To build a complex, multi-level navigation system, define a nested schema inside Storyblok. Instead of using flat key-value data sources or shallow reference fields, use a single-instance configuration story combined with nested components (blocks).</p>
@@ -158,6 +164,10 @@ cd my-storyblok-site</code></pre>
                                 <tr><td><code>default_seo</code></td><td>Plugin</td><td>Optional field for site-wide metadata plugins.</td></tr>
                             </tbody>
                         </table>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.22.27_2.jpg" alt="Master global_settings schema" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Preview of the master <code>global_settings</code> schema in the Block Library. This visualizes how the header and footer blocks must be nested to structure your layout data.</figcaption>
+                        </figure>
 
                         <p><strong>Header</strong><br>This nestable block houses the branding and the top level of the navigation grid.</p>
                         <table>
@@ -167,6 +177,10 @@ cd my-storyblok-site</code></pre>
                                 <tr><td><code>nav_items</code></td><td>Blocks</td><td>Allowed components restricted to <code>nav_item</code> and <code>nav_dropdown</code>.</td></tr>
                             </tbody>
                         </table>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.15.51_2.jpg" alt="Block Library configuration for header" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Preview of the Block Library configuration for the header block. This demonstrates how to structure the nested <code>logo</code> (Asset) and <code>nav_items</code> (Blocks) fields.</figcaption>
+                        </figure>
 
                         <p><strong>Nav item</strong><br>This nestable block represents a single, interactive hyperlink (for example, "Home" or "Pricing").</p>
                         <table>
@@ -185,6 +199,10 @@ cd my-storyblok-site</code></pre>
                                 <tr><td><code>sub_items</code></td><td>Blocks</td><td>Allowed components restricted to <code>nav_item</code>.</td></tr>
                             </tbody>
                         </table>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.17.38_2.jpg" alt="Block creation modal for nav_dropdown" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Reference: The block creation modal for the <code>nav_dropdown</code> component. Note the vital step of explicitly selecting the "Nestable block" radio button.</figcaption>
+                        </figure>
 
                         <h4>3. Optimize the editor experience</h4>
                         <p>Headless architectures frequently fracture the content editing experience, forcing marketing teams to edit form fields blindly without seeing the visual output. This content model resolves that disconnect by natively integrating with Storyblok's Visual Editor.</p>
@@ -303,6 +321,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   );
 }</code></pre>
 </div>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 17.38.51_2.jpg" alt="VS Code displaying layout.tsx" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Reference: The expected VS Code configuration displaying the completed <code>layout.tsx</code> file. This serves as a visual check for your file structure and React integration.</figcaption>
+                        </figure>
 
                         <p>To make this fully functional inside the Storyblok Visual Editor iframe, ensure you have a simple Next.js draft mode route handler to toggle the preview session:</p>
                         
@@ -392,6 +414,7 @@ export interface NavItemBlock {
   component: "nav_item";
   label: string;
   link: StoryblokLink;
+  _editable?: string;
 }
 
 export interface NavDropdownBlock {
@@ -399,6 +422,7 @@ export interface NavDropdownBlock {
   component: "nav_dropdown";
   label: string;
   sub_items: NavItemBlock[];
+  _editable?: string;
 }
 
 export type NavigationItem = NavItemBlock | NavDropdownBlock;
@@ -487,6 +511,14 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
   );
 }</code></pre>
 </div>
+                        
+                        <h4 id="troubleshooting-mixed-content">Troubleshooting: Mixed-content errors</h4>
+                        <p>When running the Next.js development server on <code>localhost:3000</code> (HTTP) and accessing it via the Storyblok Visual Editor (HTTPS), your browser may block the iframe due to mixed-content security policies. This results in a "localhost refused to connect" error.</p>
+                        <figure style="margin: 2rem 0; text-align: center;">
+                            <img src="Screenshot 2026-09-29 at 18.21.51.jpg" alt="Storyblok Visual Editor failing to load" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Preview of the Storyblok Visual Editor failing to load with a "localhost refused to connect" mixed-content error. This sets up the context for the required macOS <code>mkcert</code> HTTPS proxy fix.</figcaption>
+                        </figure>
+                        <p>To resolve this on macOS, configure an HTTPS proxy using tools like <code>mkcert</code> and <code>local-ssl-proxy</code> to serve your local environment over a secure connection.</p>
                     </div>
                 </section>
 
