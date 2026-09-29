@@ -526,7 +526,18 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
                     <div class="section-content">
                         <h3>Live demo</h3>
                         <div style="padding: 2rem; background: var(--bg-tertiary); text-align: center; border-radius: 8px; margin: 2rem 0; border: 1px dashed var(--border-color);">
-                            📸 SCREENSHOT PLACEHOLDER: Live demo showing the final rendered navigation bar with the dropdown menu open, demonstrating the "Products" sub-menu items on the Next.js frontend.
+                            
+<div style="margin-bottom: 2rem;">
+    <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Header Navigation</h4>
+    <img src="live_demo_header.png" alt="Header showing Products dropdown with Security and Analytics, and Home" style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">The header successfully renders the Storyblok Navigation structure, showing the "Products" dropdown containing "Security" and "Analytics", along with the "Home" link.</p>
+</div>
+<div>
+    <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Footer Links</h4>
+    <img src="live_demo_footer.png" alt="Footer showing Privacy Policy and Terms of Service" style="width: 100%; max-width: 800px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">The footer correctly displays the fallback structure with explicitly added links for "Privacy Policy" and "Terms of Service".</p>
+</div>
+
                         </div>
                     </div>
                 </section>
