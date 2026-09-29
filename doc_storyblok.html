@@ -515,7 +515,7 @@ export default function Navigation({ items }: { items: NavigationItem[] }) {
                         <h4 id="troubleshooting-mixed-content">Troubleshooting: Mixed-content errors</h4>
                         <p>When running the Next.js development server on <code>localhost:3000</code> (HTTP) and accessing it via the Storyblok Visual Editor (HTTPS), your browser may block the iframe due to mixed-content security policies. This results in a "localhost refused to connect" error.</p>
                         <figure style="margin: 2rem 0; text-align: center;">
-                            <img src="Screenshot 2026-09-29 at 18.21.51.png" alt="Storyblok Visual Editor failing to load" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <img src="Screenshot 2026-09-29 at 18.35.37.png" alt="Storyblok Visual Editor failing to load" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color);">
                             <figcaption style="margin-top: 0.5rem; font-size: 0.9em; color: var(--text-secondary);">Preview of the Storyblok Visual Editor failing to load with a "localhost refused to connect" mixed-content error. This sets up the context for the required macOS <code>mkcert</code> HTTPS proxy fix.</figcaption>
                         </figure>
                         <p>To resolve this on macOS, configure an HTTPS proxy using tools like <code>mkcert</code> and <code>local-ssl-proxy</code> to serve your local environment over a secure connection.</p>
